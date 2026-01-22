@@ -15,7 +15,7 @@ juce_add_plugin(SpecSelector
     IS_SYNTH false
     NEEDS_MIDI_INPUT false
     NEEDS_MIDI_OUTPUT false
-    IS_MIDI_EFFECT true
+    IS_MIDI_EFFECT false
     EDITOR_WANTS_KEYBOARD_FOCUS true
     COPY_PLUGIN_AFTER_BUILD true
     FORMATS Standalone VST3

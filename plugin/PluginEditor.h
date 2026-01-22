@@ -3,7 +3,7 @@
 #include "PluginProcessor.h"
 
 //==============================================================================
-class AudioPluginAudioProcessorEditor final : public juce::AudioProcessorEditor
+class AudioPluginAudioProcessorEditor final : public juce::AudioProcessorEditor, private juce::Slider::Listener
 {
 public:
     explicit AudioPluginAudioProcessorEditor (AudioPluginAudioProcessor&);
@@ -16,7 +16,8 @@ public:
 private:
     // Rectangle area for spectrogram visualization
     juce::Rectangle<int> spectrogramBounds;
-
+    void sliderValueChanged (juce::Slider * slider) override;
+    juce::Slider midiVolume;
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     AudioPluginAudioProcessor& processorRef;
