@@ -21,6 +21,9 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     midiVolume.setValue (50.0);
     addAndMakeVisible(&midiVolume);
     midiVolume.addListener(this);
+    addAndMakeVisible(&openButton);
+    openButton.setButtonText("Choose file");
+    // openButton.onClick = [this] { openButtonClicked(); };
 }
 
 AudioPluginAudioProcessorEditor::~AudioPluginAudioProcessorEditor()
@@ -44,12 +47,15 @@ void AudioPluginAudioProcessorEditor::paint (juce::Graphics& g)
 
 }
 
+
+
 void AudioPluginAudioProcessorEditor::resized()
 {
     // Update spectrogram bounds when window resizes
     spectrogramBounds = getLocalBounds().withSizeKeepingCentre(
         getWidth() * 75 / 100, getHeight() * 50 / 100);
     midiVolume.setBounds (40, 30, 20, getHeight() - 60);
+    openButton.setBounds ((getWidth()/2)-40, 60, 80, 30);
 }
 
 void AudioPluginAudioProcessorEditor::sliderValueChanged(juce::Slider* slider) {

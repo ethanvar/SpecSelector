@@ -8,6 +8,7 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                        )
 {
+    formatManager.registerBasicFormats();
 }
 
 AudioPluginAudioProcessor::~AudioPluginAudioProcessor()

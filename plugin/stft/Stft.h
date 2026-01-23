@@ -20,7 +20,7 @@ class Stft {
         int m_hopSize;
         int m_sampleRate;
         int m_currentSampleNum = 0;
-        std::vector<StftSegment> m_stft;
+        std::vector<StftSegment*> m_stft;
         
     public:
         static constexpr int fftSize = 1 << 13;

@@ -18,16 +18,16 @@ void Stft::addLineToStft(std::array<float, fftSize * 2> &fourierData) {
     m_currentSampleNum++;
     segment.StartIndex = m_currentSampleNum;
     std::cout << m_currentSampleNum << std::endl;
-    m_stft.push_back(segment);
+    m_stft.push_back(&segment);
 }
 
 void Stft::printStftValues() {
     std::cout << "STFT contains " << m_stft.size() << " segments" << std::endl;
     for (size_t i = 0; i < m_stft.size(); ++i) {
-        std::cout << "Segment " << i << " (StartIndex: " << m_stft[i].StartIndex << "):" << std::endl;
+        std::cout << "Segment " << i << " (StartIndex: " << m_stft[i]->StartIndex << "):" << std::endl;
         std::cout << "  Frequency data preview (first 10 values): ";
         for (size_t j = 0; j < 10 && j < fftSize * 2; ++j) {
-            std::cout << m_stft[i].frequencyData[j] << " ";
+            std::cout << m_stft[i]->frequencyData[j] << " ";
         }
         std::cout << "..." << std::endl;
     }
@@ -41,7 +41,7 @@ void Stft::drawSpectorgramWithStft(juce::Image &specImage) {
     
     for (size_t i=0; i < m_stft.size(); ++i) {
         specImage.moveImageSection(0, 0, sliceWidth, 0, w - sliceWidth, imageHeight);
-        m_forwardFFT.performRealOnlyInverseTransform(m_stft[i].frequencyData.data());
+        m_forwardFFT.performRealOnlyInverseTransform(m_stft[i]->frequencyData.data());
 
 
 
