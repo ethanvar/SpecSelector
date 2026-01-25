@@ -3,13 +3,13 @@
 
 //==============================================================================
 AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAudioProcessor& p)
-    : AudioProcessorEditor (&p), processorRef (p)
+    : AudioProcessorEditor (&p), processorRef (p), specImage (juce::Image::RGB, 512, 512, true)
 {
     juce::ignoreUnused (processorRef);
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
     setSize (800, 600);
-    
+    juce::Logger::getCurrentLogger()->writeToLog ("Hello");
     // Initialize spectrogram bounds (centered, 75% width, 50% height)
     spectrogramBounds = getLocalBounds().withSizeKeepingCentre(
         getWidth() * 75 / 100, getHeight() * 50 / 100);
@@ -23,7 +23,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     midiVolume.addListener(this);
     addAndMakeVisible(&openButton);
     openButton.setButtonText("Choose file");
-    // openButton.onClick = [this] { openButtonClicked(); };
+    openButton.onClick = [this] { openButtonClicked(); };
 }
 
 AudioPluginAudioProcessorEditor::~AudioPluginAudioProcessorEditor()
@@ -45,9 +45,21 @@ void AudioPluginAudioProcessorEditor::paint (juce::Graphics& g)
     g.setFont (15.0f);
     g.drawFittedText ("Midi Volume Test", 0, 0, getWidth(), 30, juce::Justification::centred, 1);
 
+    //draw image
+    juce::RectanglePlacement placement;
+    g.drawImageWithin(specImage, spectrogramBounds.getX(), spectrogramBounds.getY(), spectrogramBounds.getWidth(), spectrogramBounds.getHeight(), placement, false);
+
 }
 
-
+void AudioPluginAudioProcessorEditor::openButtonClicked() {
+    chooser = std::make_unique<juce::FileChooser> ("Select a Wave file to play...", juce::File {}, "*.wav");
+    auto chooserFlags = juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles;
+    chooser->launchAsync (chooserFlags, [this] (const juce::FileChooser& fc) {
+        auto file = fc.getResult();
+        processorRef.loadFile(file, specImage);
+    });
+    openButton.setEnabled (true);
+}
 
 void AudioPluginAudioProcessorEditor::resized()
 {

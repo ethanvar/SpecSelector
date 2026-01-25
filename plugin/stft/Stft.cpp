@@ -9,6 +9,58 @@ Stft::~Stft () {
 
 };
 
+
+void Stft::processEntireFile(juce::AudioFormatReader *reader) {
+    // use tranposrtSource to read ahead of live processBlock and process spectogram in advance
+    // std::cout << "total sample length: " << reader->lengthInSamples << std::endl;
+
+    juce::AudioBuffer<float> fullBuffer((int)reader->numChannels, (int)reader->lengthInSamples);
+    // juce::AudioSourceChannelInfo bufferToFill = juce::AudioSourceChannelInfo(fullBuffer);
+
+    std::array<float, fftSize> firstOut;
+    std::array<float, fftSize * 2> fourierData;
+
+    if (!reader->read(&fullBuffer, 0,(int)reader->lengthInSamples, 0, true, true)) {
+        std::cout << "Failed to read audio file" << std::endl;
+        return;
+    }
+
+    int index = 0;
+
+
+    for (int i = 0; i <= fullBuffer.getNumSamples(); i++) {
+        firstOut[(size_t) index++] = fullBuffer.getSample(0, i);
+        
+        if ((i%fftSize) == 0) {
+            std::fill (fourierData.begin(), fourierData.end(), 0.0f);
+            std::copy (firstOut.begin(), firstOut.end(), fourierData.begin());
+            this->addLineToStft(fourierData);
+            // drawNextLineOfSpectrogram(instantSpectogram, fourierData, 1);
+            index = 0;
+        }
+    }
+}
+
+
+// void Stft::pushNextSampleIntoFifo (float sample) noexcept
+// {
+//     // if the fifo contains enough data, set a flag to say
+//     // that the next line should now be rendered..
+//     if (m_fifoIndex == m_fftSize) // [8]
+//     {
+//         if (!nextFFTBlockReady) // [9]
+//         {
+//             std::fill (m_fftData.begin(), m_fftData.end(), 0.0f);
+//             std::copy (m_fifo.begin(), m_fifo.end(), m_fftData.begin());
+//             nextFFTBlockReady = true;
+//         }
+//         m_fifoIndex = 0;
+//     }
+//     m_fifo[(size_t) m_fifoIndex++] = sample; // [9]
+// }
+
+
+
 void Stft::addLineToStft(std::array<float, fftSize * 2> &fourierData) {
     StftSegment segment;
     juce::dsp::WindowingFunction<float> window(fftSize, juce::dsp::WindowingFunction<float>::hann, true);
@@ -47,7 +99,6 @@ void Stft::drawSpectorgramWithStft(juce::Image &specImage) {
 
     }
 }
-
 
 // void AudioPluginAudioProcessor::drawNextLineOfSpectrogram(juce::Image &specImage, 
 //                                                            std::array<float, fftSize * 2> &fourierData, int sliceWidth)  {

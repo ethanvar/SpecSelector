@@ -8,7 +8,7 @@
 
 struct StftSegment
 {
-    static constexpr int fftSize = 1 << 13;
+    static constexpr int fftSize = 1 << 10;
     std::array<float, fftSize * 2> frequencyData;
     int StartIndex;
 };
@@ -17,15 +17,27 @@ struct StftSegment
 class Stft {
     private:
         juce::dsp::FFT m_forwardFFT;
+        static constexpr auto m_fftOrder = 10;
+        static constexpr auto m_fftSize = 1 << m_fftOrder;
+        std::array<float, m_fftSize> m_fifo;
+        std::array<float, m_fftSize * 2> m_fftData;
+        int m_fifoIndex = 0;
+
         int m_hopSize;
         int m_sampleRate;
         int m_currentSampleNum = 0;
         std::vector<StftSegment*> m_stft;
         
     public:
-        static constexpr int fftSize = 1 << 13;
+        static constexpr int fftSize = 1 << 10;
+        // bool nextFFTBlockReady = false;
+
         Stft(const int& sampleRate, const int& hopSize);
         ~Stft();
+
+        void processEntireFile(juce::AudioFormatReader *reader);
+        void pushNextSampleIntoFifo (float sample) noexcept;
+
         void addLineToStft(std::array<float, StftSegment::fftSize * 2> &fourierData);
         void printStftValues();
         void drawSpectorgramWithStft(juce::Image &specImage);

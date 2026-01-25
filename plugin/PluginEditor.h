@@ -17,9 +17,11 @@ public:
 private:
     // Rectangle area for spectrogram visualization
     juce::Rectangle<int> spectrogramBounds;
+    juce::Image specImage;
     void sliderValueChanged (juce::Slider * slider) override;
     juce::Slider midiVolume;
     juce::TextButton openButton;
+    std::unique_ptr<juce::FileChooser> chooser;
 
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.

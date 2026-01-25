@@ -151,6 +151,26 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     buffer.applyGain (noteOnVel);
 }
 
+void AudioPluginAudioProcessor::loadFile(const juce::File& audioFile, juce::Image& specImage)
+{
+    if (audioFile.existsAsFile()) {
+        std::cout<< "Selected file: " << audioFile.getFullPathName() << std::endl;
+        auto* reader = formatManager.createReaderFor (audioFile); // [10]
+
+        stft = std::make_unique<Stft>(static_cast<int>(reader->sampleRate), fftOrder);
+        
+        if (reader != nullptr)
+        {   
+            std::cout << "Format created: " << reader->getFormatName() << std::endl;
+            auto newSource = std::make_unique<juce::AudioFormatReaderSource> (reader, true);
+            transportSource.setSource (newSource.get(), 0, nullptr, reader->sampleRate);
+            stft->processEntireFile(reader);
+            readerSource.reset (newSource.release());
+        }
+    }
+}
+
+
 //==============================================================================
 bool AudioPluginAudioProcessor::hasEditor() const
 {
