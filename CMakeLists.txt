@@ -32,6 +32,8 @@ target_sources(SpecSelector
         plugin/PluginProcessor.h
         plugin/PluginEditor.cpp
         plugin/PluginEditor.h
+        plugin/stft/Stft.cpp
+        plugin/stft/Stft.h
 )
 
 target_compile_definitions(SpecSelector
@@ -45,4 +47,6 @@ target_link_libraries(SpecSelector PRIVATE
     juce::juce_audio_utils
     juce::juce_audio_formats
     juce::juce_audio_devices
+    juce::juce_core
+    juce::juce_dsp
 )

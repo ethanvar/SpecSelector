@@ -5,6 +5,7 @@
 #include <complex>
 #include <juce_dsp/juce_dsp.h>
 #include <juce_audio_utils/juce_audio_utils.h>
+#include <juce_core/juce_core.h>
 
 struct StftSegment
 {
@@ -23,20 +24,21 @@ class Stft {
         std::array<float, m_fftSize * 2> m_fftData;
         int m_fifoIndex = 0;
 
-        int m_hopSize;
-        int m_sampleRate;
+        // int m_hopSize;
+        // int m_sampleRate;
         int m_currentSampleNum = 0;
         std::vector<StftSegment*> m_stft;
         
     public:
-        static constexpr int fftSize = 1 << 10;
+        static constexpr auto fftOrder = 10;
+        static constexpr auto fftSize = 1 << fftOrder;
         // bool nextFFTBlockReady = false;
 
-        Stft(const int& sampleRate, const int& hopSize);
+        Stft();
         ~Stft();
 
         void processEntireFile(juce::AudioFormatReader *reader);
-        void pushNextSampleIntoFifo (float sample) noexcept;
+        // void pushNextSampleIntoFifo (float sample) noexcept;
 
         void addLineToStft(std::array<float, StftSegment::fftSize * 2> &fourierData);
         void printStftValues();

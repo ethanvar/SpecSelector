@@ -1,7 +1,8 @@
 #include "Stft.h"
+
 #include <iostream>
 
-Stft::Stft(const int& sampleRate, const int& hopSize) : m_hopSize(hopSize), m_sampleRate(sampleRate), m_forwardFFT(13) {
+Stft::Stft() : m_forwardFFT(13) {
 
 };
 
@@ -10,9 +11,10 @@ Stft::~Stft () {
 };
 
 
-void Stft::processEntireFile(juce::AudioFormatReader *reader) {
+void Stft::processEntireFile(juce::AudioFormatReader* reader) {
     // use tranposrtSource to read ahead of live processBlock and process spectogram in advance
     // std::cout << "total sample length: " << reader->lengthInSamples << std::endl;
+    std::cout << "Format created, again: " << reader->getFormatName() << std::endl;
 
     juce::AudioBuffer<float> fullBuffer((int)reader->numChannels, (int)reader->lengthInSamples);
     // juce::AudioSourceChannelInfo bufferToFill = juce::AudioSourceChannelInfo(fullBuffer);
@@ -23,18 +25,24 @@ void Stft::processEntireFile(juce::AudioFormatReader *reader) {
     if (!reader->read(&fullBuffer, 0,(int)reader->lengthInSamples, 0, true, true)) {
         std::cout << "Failed to read audio file" << std::endl;
         return;
+    } else {
+        std::cout << "Successfully read audio file" << std::endl;
     }
 
     int index = 0;
 
+    std::cout << "Is it segfaulting here?" << std::endl;
+    std::cout << "Checking buffer: " << fullBuffer.getSample(0, 500) << std::endl;
+    std::cout << "First out size: " << firstOut.size() << std::endl;
+
 
     for (int i = 0; i <= fullBuffer.getNumSamples(); i++) {
         firstOut[(size_t) index++] = fullBuffer.getSample(0, i);
-        
+    
         if ((i%fftSize) == 0) {
             std::fill (fourierData.begin(), fourierData.end(), 0.0f);
             std::copy (firstOut.begin(), firstOut.end(), fourierData.begin());
-            this->addLineToStft(fourierData);
+            // this->addLineToStft(fourierData);
             // drawNextLineOfSpectrogram(instantSpectogram, fourierData, 1);
             index = 0;
         }
@@ -87,15 +95,24 @@ void Stft::printStftValues() {
 
 void Stft::drawSpectorgramWithStft(juce::Image &specImage) {
     auto w = specImage.getWidth();
-    int sliceWidth = juce::jlimit(1, w, sliceWidth);
+    // int sliceWidth = juce::jlimit(1, w, sliceWidth);
 
     auto imageHeight = specImage.getHeight();
     
     for (size_t i=0; i < m_stft.size(); ++i) {
-        specImage.moveImageSection(0, 0, sliceWidth, 0, w - sliceWidth, imageHeight);
+        auto rightHandEdge = specImage.getWidth() -1;
+        specImage.moveImageSection (0, 0, 1, 0, rightHandEdge, imageHeight); 
+        auto maxLevel = juce::FloatVectorOperations::findMinAndMax(m_stft[i]->frequencyData.data(), m_fftSize/2);
+
         m_forwardFFT.performRealOnlyInverseTransform(m_stft[i]->frequencyData.data());
+        juce::Image::BitmapData bitmap { specImage, int(i), 0, 1, imageHeight, juce::Image::BitmapData::writeOnly };
 
-
+        for (auto y = 1; y < imageHeight; ++y) {
+            auto skewedProportionY = 1.0f - std::exp (std::log ((float) y / (float) imageHeight) * 0.2f);
+            auto fftDataIndex = (size_t) juce::jlimit (0, fftSize / 2, (int) (skewedProportionY * fftSize / 2));
+            auto level = juce::jmap(m_stft[i]->frequencyData[y], 0.0f, juce::jmax (maxLevel.getEnd(), 1e-5f), 0.0f, 1.0f);
+            bitmap.setPixelColour (0, y, juce::Colour::fromHSV (level, 1.0f, level, 1.0f));
+        }
 
     }
 }

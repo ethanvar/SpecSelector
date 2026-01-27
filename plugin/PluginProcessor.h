@@ -4,7 +4,7 @@
 #include <juce_audio_formats/juce_audio_formats.h>
 #include <juce_audio_devices/juce_audio_devices.h>
 #include <juce_audio_utils/juce_audio_utils.h>
-#include <Stft.h>
+#include "stft/Stft.h"
 
 //==============================================================================
 class AudioPluginAudioProcessor final : public juce::AudioProcessor
@@ -50,7 +50,9 @@ public:
     juce::AudioTransportSource transportSource;
 
     static constexpr auto fftOrder = 10;
-    std::unique_ptr<Stft> stft;
+    static constexpr auto fftSize = 1 << fftOrder;
+    
+    Stft stft;
 
 private:
     juce::AudioFormatManager formatManager;
