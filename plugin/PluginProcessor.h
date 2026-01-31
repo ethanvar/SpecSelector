@@ -51,10 +51,14 @@ public:
 
     static constexpr auto fftOrder = 10;
     static constexpr auto fftSize = 1 << fftOrder;
-    
+    // bool repaint = false;
+    void setRepaint(bool value);
+    bool getRepaint();
     Stft stft;
 
 private:
+    bool repaint = false;
+
     juce::AudioFormatManager formatManager;
     std::unique_ptr<juce::AudioFormatReaderSource> readerSource;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPluginAudioProcessor)

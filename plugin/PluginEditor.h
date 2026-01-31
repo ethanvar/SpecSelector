@@ -13,6 +13,7 @@ public:
     void paint (juce::Graphics&) override;
     void resized() override;
     void openButtonClicked();
+    void timerCallback();
 
 private:
     // Rectangle area for spectrogram visualization

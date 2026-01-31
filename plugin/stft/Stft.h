@@ -17,8 +17,8 @@ struct StftSegment
 
 class Stft {
     private:
-        juce::dsp::FFT m_forwardFFT;
         static constexpr auto m_fftOrder = 10;
+        juce::dsp::FFT m_forwardFFT;
         static constexpr auto m_fftSize = 1 << m_fftOrder;
         std::array<float, m_fftSize> m_fifo;
         std::array<float, m_fftSize * 2> m_fftData;

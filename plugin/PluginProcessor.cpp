@@ -167,6 +167,9 @@ void AudioPluginAudioProcessor::loadFile(const juce::File& audioFile, juce::Imag
             transportSource.setSource (newSource.get(), 0, nullptr, reader->sampleRate);
             std::cout << "Please dont seg fault" << std::endl;
             stft.processEntireFile(reader);
+            stft.drawSpectorgramWithStft(specImage);
+            repaint = true;
+            // std::cout << repaint << std::endl;
             readerSource.reset (newSource.release());
         }
     }
@@ -198,6 +201,14 @@ void AudioPluginAudioProcessor::setStateInformation (const void* data, int sizeI
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
     juce::ignoreUnused (data, sizeInBytes);
+}
+
+void AudioPluginAudioProcessor::setRepaint(bool value) {
+    repaint = value;
+}
+
+bool AudioPluginAudioProcessor::getRepaint() {
+    return repaint;
 }
 
 //==============================================================================

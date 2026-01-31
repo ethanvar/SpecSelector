@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-Stft::Stft() : m_forwardFFT(13) {
+Stft::Stft() : m_forwardFFT(m_fftOrder) {
 
 };
 
@@ -38,12 +38,12 @@ void Stft::processEntireFile(juce::AudioFormatReader* reader) {
 
     for (int i = 0; i <= fullBuffer.getNumSamples(); i++) {
         firstOut[(size_t) index++] = fullBuffer.getSample(0, i);
+
     
         if ((i%fftSize) == 0) {
             std::fill (fourierData.begin(), fourierData.end(), 0.0f);
             std::copy (firstOut.begin(), firstOut.end(), fourierData.begin());
-            // this->addLineToStft(fourierData);
-            // drawNextLineOfSpectrogram(instantSpectogram, fourierData, 1);
+            addLineToStft(fourierData);
             index = 0;
         }
     }
@@ -77,7 +77,6 @@ void Stft::addLineToStft(std::array<float, fftSize * 2> &fourierData) {
     segment.frequencyData = fourierData;
     m_currentSampleNum++;
     segment.StartIndex = m_currentSampleNum;
-    std::cout << m_currentSampleNum << std::endl;
     m_stft.push_back(&segment);
 }
 
@@ -96,25 +95,32 @@ void Stft::printStftValues() {
 void Stft::drawSpectorgramWithStft(juce::Image &specImage) {
     auto w = specImage.getWidth();
     // int sliceWidth = juce::jlimit(1, w, sliceWidth);
-
+    std::cout << "100, 100: " << specImage.getPixelAt(100, 100).getFloatBlue() << std::endl;
     auto imageHeight = specImage.getHeight();
     
     for (size_t i=0; i < m_stft.size(); ++i) {
+    std::cout << "2: " << std::endl;
+
         auto rightHandEdge = specImage.getWidth() -1;
         specImage.moveImageSection (0, 0, 1, 0, rightHandEdge, imageHeight); 
         auto maxLevel = juce::FloatVectorOperations::findMinAndMax(m_stft[i]->frequencyData.data(), m_fftSize/2);
+        std::cout << "3: " << std::endl;
 
         m_forwardFFT.performRealOnlyInverseTransform(m_stft[i]->frequencyData.data());
         juce::Image::BitmapData bitmap { specImage, int(i), 0, 1, imageHeight, juce::Image::BitmapData::writeOnly };
+        std::cout << "4: " << std::endl;
 
         for (auto y = 1; y < imageHeight; ++y) {
             auto skewedProportionY = 1.0f - std::exp (std::log ((float) y / (float) imageHeight) * 0.2f);
             auto fftDataIndex = (size_t) juce::jlimit (0, fftSize / 2, (int) (skewedProportionY * fftSize / 2));
-            auto level = juce::jmap(m_stft[i]->frequencyData[y], 0.0f, juce::jmax (maxLevel.getEnd(), 1e-5f), 0.0f, 1.0f);
+            auto level = juce::jmap(m_stft[i]->frequencyData.at(fftDataIndex), 0.0f, juce::jmax (maxLevel.getEnd(), 1e-5f), 0.0f, 1.0f);
             bitmap.setPixelColour (0, y, juce::Colour::fromHSV (level, 1.0f, level, 1.0f));
         }
-
     }
+
+    std::cout << "100, 100: " << specImage.getPixelAt(100, 100).getFloatBlue() << std::endl;
+
+    // repaint = true;
 }
 
 // void AudioPluginAudioProcessor::drawNextLineOfSpectrogram(juce::Image &specImage, 

@@ -47,6 +47,10 @@ void AudioPluginAudioProcessorEditor::paint (juce::Graphics& g)
 
     //draw image
     juce::RectanglePlacement placement;
+    g.setColour (juce::Colours::white);
+
+    // g.drawImage (specImage, spectrogramBounds.toFloat());
+    std::cout << "Redraw" << std::endl;
     g.drawImageWithin(specImage, spectrogramBounds.getX(), spectrogramBounds.getY(), spectrogramBounds.getWidth(), spectrogramBounds.getHeight(), placement, false);
 
 }
@@ -72,4 +76,13 @@ void AudioPluginAudioProcessorEditor::resized()
 
 void AudioPluginAudioProcessorEditor::sliderValueChanged(juce::Slider* slider) {
     processorRef.noteOnVel = float(midiVolume.getValue()/double(100));
+}
+
+void AudioPluginAudioProcessorEditor::timerCallback()
+{
+    if (processorRef.getRepaint() == true)
+    {
+        repaint();
+        processorRef.setRepaint(false);
+    }
 }
