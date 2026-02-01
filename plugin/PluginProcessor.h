@@ -49,7 +49,7 @@ public:
     void loadFile(const juce::File& audioFile, juce::Image& specImage);
     juce::AudioTransportSource transportSource;
 
-    static constexpr auto fftOrder = 10;
+    static constexpr auto fftOrder = 9;
     static constexpr auto fftSize = 1 << fftOrder;
     // bool repaint = false;
     void setRepaint(bool value);
@@ -58,6 +58,7 @@ public:
 
 private:
     bool repaint = false;
+    float songProgress = 0.0f;
 
     juce::AudioFormatManager formatManager;
     std::unique_ptr<juce::AudioFormatReaderSource> readerSource;

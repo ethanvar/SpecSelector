@@ -12,6 +12,7 @@ Stft::~Stft () {
 
 
 void Stft::processEntireFile(juce::AudioFormatReader* reader) {
+    m_stft.clear();
     // use tranposrtSource to read ahead of live processBlock and process spectogram in advance
     // std::cout << "total sample length: " << reader->lengthInSamples << std::endl;
     std::cout << "Format created, again: " << reader->getFormatName() << std::endl;
@@ -35,39 +36,25 @@ void Stft::processEntireFile(juce::AudioFormatReader* reader) {
     std::cout << "Checking buffer: " << fullBuffer.getSample(0, 500) << std::endl;
     std::cout << "First out size: " << firstOut.size() << std::endl;
 
-
-    for (int i = 0; i <= fullBuffer.getNumSamples(); i++) {
+    bool overZero = false;
+    for (int i = 0; i < fullBuffer.getNumSamples(); i++) {
         firstOut[(size_t) index++] = fullBuffer.getSample(0, i);
 
+        if (fullBuffer.getSample(0, i) != 0.0f) {
+            overZero = true;
+        }
     
-        if ((i%fftSize) == 0) {
+        if (i > 0 && ((i%fftSize) == 0)) {
             std::fill (fourierData.begin(), fourierData.end(), 0.0f);
             std::copy (firstOut.begin(), firstOut.end(), fourierData.begin());
-            addLineToStft(fourierData);
+            if (overZero) {
+                addLineToStft(fourierData);
+            }
+            overZero = false;
             index = 0;
         }
     }
 }
-
-
-// void Stft::pushNextSampleIntoFifo (float sample) noexcept
-// {
-//     // if the fifo contains enough data, set a flag to say
-//     // that the next line should now be rendered..
-//     if (m_fifoIndex == m_fftSize) // [8]
-//     {
-//         if (!nextFFTBlockReady) // [9]
-//         {
-//             std::fill (m_fftData.begin(), m_fftData.end(), 0.0f);
-//             std::copy (m_fifo.begin(), m_fifo.end(), m_fftData.begin());
-//             nextFFTBlockReady = true;
-//         }
-//         m_fifoIndex = 0;
-//     }
-//     m_fifo[(size_t) m_fifoIndex++] = sample; // [9]
-// }
-
-
 
 void Stft::addLineToStft(std::array<float, fftSize * 2> &fourierData) {
     StftSegment segment;
@@ -77,51 +64,83 @@ void Stft::addLineToStft(std::array<float, fftSize * 2> &fourierData) {
     segment.frequencyData = fourierData;
     m_currentSampleNum++;
     segment.StartIndex = m_currentSampleNum;
-    m_stft.push_back(&segment);
+    m_stft.push_back(segment);
 }
 
 void Stft::printStftValues() {
     std::cout << "STFT contains " << m_stft.size() << " segments" << std::endl;
     for (size_t i = 0; i < m_stft.size(); ++i) {
-        std::cout << "Segment " << i << " (StartIndex: " << m_stft[i]->StartIndex << "):" << std::endl;
+        std::cout << "Segment " << i << " (StartIndex: " << m_stft[i].StartIndex << "):" << std::endl;
         std::cout << "  Frequency data preview (first 10 values): ";
         for (size_t j = 0; j < 10 && j < fftSize * 2; ++j) {
-            std::cout << m_stft[i]->frequencyData[j] << " ";
+            std::cout << m_stft[i].frequencyData[j] << " ";
         }
         std::cout << "..." << std::endl;
     }
 }
 
-void Stft::drawSpectorgramWithStft(juce::Image &specImage) {
-    auto w = specImage.getWidth();
-    // int sliceWidth = juce::jlimit(1, w, sliceWidth);
-    std::cout << "100, 100: " << specImage.getPixelAt(100, 100).getFloatBlue() << std::endl;
-    auto imageHeight = specImage.getHeight();
-    
-    for (size_t i=0; i < m_stft.size(); ++i) {
-    std::cout << "2: " << std::endl;
+void Stft::drawSpectorgramWithStft(juce::Image& specImage)
+{
+    const int imageWidth  = specImage.getWidth();
+    const int imageHeight = specImage.getHeight();
+    const int numFrames   = static_cast<int>(m_stft.size());
 
-        auto rightHandEdge = specImage.getWidth() -1;
-        specImage.moveImageSection (0, 0, 1, 0, rightHandEdge, imageHeight); 
-        auto maxLevel = juce::FloatVectorOperations::findMinAndMax(m_stft[i]->frequencyData.data(), m_fftSize/2);
-        std::cout << "3: " << std::endl;
+    // Guard: no frames or nothing fits
+    if (numFrames <= 0 || imageHeight <= 0 || imageWidth <= 0)
+        return;
 
-        m_forwardFFT.performRealOnlyInverseTransform(m_stft[i]->frequencyData.data());
-        juce::Image::BitmapData bitmap { specImage, int(i), 0, 1, imageHeight, juce::Image::BitmapData::writeOnly };
-        std::cout << "4: " << std::endl;
+    // Loop over each FFT frame
+    for (int i = 0; i < numFrames; ++i)
+    {
+        // Get the FFT magnitudes for the current frame
+        const float* fftMagnitudes = m_stft[i].frequencyData.data();
 
-        for (auto y = 1; y < imageHeight; ++y) {
+        // Find min/max for normalization (considering only half of the FFT bins)
+        auto minMax = juce::FloatVectorOperations::findMinAndMax(fftMagnitudes, m_fftSize / 2);
+        float maxLevel = juce::jmax(minMax.getEnd(), 1.0e-6f);
+
+        // Lock the **rightmost column** of the image (where we draw this FFT)
+        juce::Image::BitmapData bitmap(
+            specImage,
+            imageWidth - 1,  // rightmost column
+            0,
+            1,              // width = 1 pixel
+            imageHeight,
+            juce::Image::BitmapData::writeOnly
+        );
+
+        // Draw frequency bins bottom → top (optionally skew Y axis to emphasize low frequencies)
+        for (int y = 0; y < imageHeight; ++y)
+        {
+            // Map pixel Y → normalized frequency bin (0..1)
             auto skewedProportionY = 1.0f - std::exp (std::log ((float) y / (float) imageHeight) * 0.2f);
-            auto fftDataIndex = (size_t) juce::jlimit (0, fftSize / 2, (int) (skewedProportionY * fftSize / 2));
-            auto level = juce::jmap(m_stft[i]->frequencyData.at(fftDataIndex), 0.0f, juce::jmax (maxLevel.getEnd(), 1e-5f), 0.0f, 1.0f);
-            bitmap.setPixelColour (0, y, juce::Colour::fromHSV (level, 1.0f, level, 1.0f));
+
+            // Map to FFT index
+            int fftIndex = juce::jlimit(0, m_fftSize / 2 - 1, static_cast<int>(skewedProportionY * (m_fftSize / 2)));
+
+            // Normalize magnitude to 0..1
+            float level = juce::jmap(fftMagnitudes[fftIndex], 0.0f, maxLevel, 0.0f, 1.0f);
+            level = juce::jlimit(0.0f, 1.0f, level);
+
+            // Convert magnitude → color (HSV, from low frequency red to high frequency blue)
+            juce::Colour colour = juce::Colour::fromHSV(
+                level,  // hue (based on magnitude)
+                1.0f,   // full saturation
+                level,  // value (brightness)
+                1.0f    // alpha
+            );
+
+            // Set the pixel color based on the calculated magnitude
+            bitmap.setPixelColour(0, y, colour);
         }
+
+        // Optionally, you could add this code to move the image columns (if desired):
+        specImage.moveImageSection(0, 0, 1, 0, imageWidth - 1, imageHeight);
     }
-
-    std::cout << "100, 100: " << specImage.getPixelAt(100, 100).getFloatBlue() << std::endl;
-
-    // repaint = true;
 }
+
+
+
 
 // void AudioPluginAudioProcessor::drawNextLineOfSpectrogram(juce::Image &specImage, 
 //                                                            std::array<float, fftSize * 2> &fourierData, int sliceWidth)  {

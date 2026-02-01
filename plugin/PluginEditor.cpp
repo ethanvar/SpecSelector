@@ -3,12 +3,13 @@
 
 //==============================================================================
 AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAudioProcessor& p)
-    : AudioProcessorEditor (&p), processorRef (p), specImage (juce::Image::RGB, 512, 512, true)
+    : AudioProcessorEditor (&p), processorRef (p), specImage (juce::Image::RGB, 1200, 600, true)
 {
     juce::ignoreUnused (processorRef);
+    startTimerHz(60); 
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    setSize (800, 600);
+    setSize (1024, 768);
     juce::Logger::getCurrentLogger()->writeToLog ("Hello");
     // Initialize spectrogram bounds (centered, 75% width, 50% height)
     spectrogramBounds = getLocalBounds().withSizeKeepingCentre(
@@ -50,7 +51,6 @@ void AudioPluginAudioProcessorEditor::paint (juce::Graphics& g)
     g.setColour (juce::Colours::white);
 
     // g.drawImage (specImage, spectrogramBounds.toFloat());
-    std::cout << "Redraw" << std::endl;
     g.drawImageWithin(specImage, spectrogramBounds.getX(), spectrogramBounds.getY(), spectrogramBounds.getWidth(), spectrogramBounds.getHeight(), placement, false);
 
 }
@@ -82,7 +82,9 @@ void AudioPluginAudioProcessorEditor::timerCallback()
 {
     if (processorRef.getRepaint() == true)
     {
+        std::cout << "Redrawing" << std::endl;
         repaint();
+        std::cout << "Redrawn?" << std::endl;
         processorRef.setRepaint(false);
     }
 }
