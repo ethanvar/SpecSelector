@@ -1,4 +1,5 @@
 #include "PluginProcessor.h"
+#include <iostream>
 #include "PluginEditor.h"
 
 //==============================================================================
@@ -22,6 +23,9 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     midiVolume.setValue (50.0);
     addAndMakeVisible(&midiVolume);
     midiVolume.addListener(this);
+    addAndMakeVisible(&checkTime);
+    checkTime.setButtonText("Check Time");
+    checkTime.onClick = [this] {checkTimeClicked(); };
     addAndMakeVisible(&openButton);
     openButton.setButtonText("Choose file");
     openButton.onClick = [this] { openButtonClicked(); };
@@ -65,6 +69,10 @@ void AudioPluginAudioProcessorEditor::openButtonClicked() {
     openButton.setEnabled (true);
 }
 
+void AudioPluginAudioProcessorEditor::checkTimeClicked() {
+    std::cout << processorRef.retTrackTimeInSeconds() << std::endl;
+}
+
 void AudioPluginAudioProcessorEditor::resized()
 {
     // Update spectrogram bounds when window resizes
@@ -72,6 +80,7 @@ void AudioPluginAudioProcessorEditor::resized()
         getWidth() * 75 / 100, getHeight() * 50 / 100);
     midiVolume.setBounds (40, 30, 20, getHeight() - 60);
     openButton.setBounds ((getWidth()/2)-40, 60, 80, 30);
+    checkTime.setBounds ((getWidth()/2)-40, 100, 80, 30);
 }
 
 void AudioPluginAudioProcessorEditor::sliderValueChanged(juce::Slider* slider) {

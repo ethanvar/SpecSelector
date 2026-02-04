@@ -55,7 +55,7 @@ public:
     // bool repaint = false;
     void setRepaint(bool value);
     bool getRepaint();
-    juce::Optional<double> retTrackTimeInSeconds();
+    double retTrackTimeInSeconds();
     Stft stft;
 
 private:

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "PluginProcessor.h"
+#include "juce_gui_basics/juce_gui_basics.h"
 
 //==============================================================================
 class AudioPluginAudioProcessorEditor final : public juce::AudioProcessorEditor, private juce::Slider::Listener, private juce::Timer
@@ -12,6 +13,7 @@ public:
     //==============================================================================
     void paint (juce::Graphics&) override;
     void resized() override;
+    void checkTimeClicked();
     void openButtonClicked();
     void timerCallback() override;
 
@@ -22,6 +24,7 @@ private:
     juce::Image progressMask;
     void sliderValueChanged (juce::Slider * slider) override;
     juce::Slider midiVolume;
+    juce::TextButton checkTime;
     juce::TextButton openButton;
     std::unique_ptr<juce::FileChooser> chooser;
 

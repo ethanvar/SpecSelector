@@ -215,11 +215,11 @@ void AudioPluginAudioProcessor::setStateInformation (const void* data, int sizeI
     juce::ignoreUnused (data, sizeInBytes);
 }
 
-juce::Optional<double> AudioPluginAudioProcessor::retTrackTimeInSeconds(){
-    if (currentPosition.getTimeInSeconds()){
-        return currentPosition.getTimeInSeconds();
+double AudioPluginAudioProcessor::retTrackTimeInSeconds(){
+    if (auto t = currentPosition.getTimeInSeconds()){
+        return *t;
     }
-    return 0.0f;
+    return 0.0;
 }
 
 void AudioPluginAudioProcessor::setRepaint(bool value) {
