@@ -13,12 +13,13 @@ public:
     void paint (juce::Graphics&) override;
     void resized() override;
     void openButtonClicked();
-    void timerCallback();
+    void timerCallback() override;
 
 private:
     // Rectangle area for spectrogram visualization
     juce::Rectangle<int> spectrogramBounds;
     juce::Image specImage;
+    juce::Image progressMask;
     void sliderValueChanged (juce::Slider * slider) override;
     juce::Slider midiVolume;
     juce::TextButton openButton;

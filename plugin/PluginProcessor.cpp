@@ -151,7 +151,9 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
         {
             channelData[sample] *= noteOnVel;
         }
+        
         // ..do something to the data...
+
     }
 }
 

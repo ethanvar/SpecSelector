@@ -3,7 +3,7 @@
 
 //==============================================================================
 AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAudioProcessor& p)
-    : AudioProcessorEditor (&p), processorRef (p), specImage (juce::Image::RGB, 1200, 600, true)
+    : AudioProcessorEditor (&p), processorRef (p), specImage (juce::Image::RGB, 1200, 600, true), progressMask(juce::Image::RGB, 1200, 600, true)
 {
     juce::ignoreUnused (processorRef);
     startTimerHz(60); 
