@@ -137,6 +137,12 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 
+    if (auto playHead = getPlayHead()) {
+        if (auto posInfo = playHead->getPosition())
+        {
+            currentPosition = *posInfo;
+        }
+    }
     // This is the place where you'd normally do the guts of your plugin's
     // audio processing...
     // Make sure to reset the state if your inner loop is processing
@@ -207,6 +213,13 @@ void AudioPluginAudioProcessor::setStateInformation (const void* data, int sizeI
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
     juce::ignoreUnused (data, sizeInBytes);
+}
+
+juce::Optional<double> AudioPluginAudioProcessor::retTrackTimeInSeconds(){
+    if (currentPosition.getTimeInSeconds()){
+        return currentPosition.getTimeInSeconds();
+    }
+    return 0.0f;
 }
 
 void AudioPluginAudioProcessor::setRepaint(bool value) {

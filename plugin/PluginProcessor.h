@@ -4,6 +4,7 @@
 #include <juce_audio_formats/juce_audio_formats.h>
 #include <juce_audio_devices/juce_audio_devices.h>
 #include <juce_audio_utils/juce_audio_utils.h>
+#include <optional>
 #include "stft/Stft.h"
 
 //==============================================================================
@@ -54,6 +55,7 @@ public:
     // bool repaint = false;
     void setRepaint(bool value);
     bool getRepaint();
+    juce::Optional<double> retTrackTimeInSeconds();
     Stft stft;
 
 private:
@@ -62,5 +64,6 @@ private:
 
     juce::AudioFormatManager formatManager;
     std::unique_ptr<juce::AudioFormatReaderSource> readerSource;
+    juce::AudioPlayHead::PositionInfo currentPosition;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPluginAudioProcessor)
 };
