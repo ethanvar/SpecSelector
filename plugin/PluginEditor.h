@@ -16,6 +16,7 @@ public:
     void checkTimeClicked();
     void openButtonClicked();
     void timerCallback() override;
+    void repaintCheckTime(juce::Graphics&);
 
 private:
     // Rectangle area for spectrogram visualization

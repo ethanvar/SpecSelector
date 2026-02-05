@@ -222,6 +222,14 @@ double AudioPluginAudioProcessor::retTrackTimeInSeconds(){
     return 0.0;
 }
 
+double AudioPluginAudioProcessor::retLoadedSongInSeconds() {
+  if (auto t = transportSource.getLengthInSeconds()) {
+      return t;
+  }
+
+  return 0.0; 
+}
+
 void AudioPluginAudioProcessor::setRepaint(bool value) {
     repaint = value;
 }

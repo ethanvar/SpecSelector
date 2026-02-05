@@ -4,7 +4,6 @@
 #include <juce_audio_formats/juce_audio_formats.h>
 #include <juce_audio_devices/juce_audio_devices.h>
 #include <juce_audio_utils/juce_audio_utils.h>
-#include <optional>
 #include "stft/Stft.h"
 
 //==============================================================================
@@ -56,6 +55,7 @@ public:
     void setRepaint(bool value);
     bool getRepaint();
     double retTrackTimeInSeconds();
+    double retLoadedSongInSeconds();
     Stft stft;
 
 private:

@@ -1,4 +1,5 @@
 #include "PluginProcessor.h"
+#include "juce_graphics/juce_graphics.h"
 #include <iostream>
 #include "PluginEditor.h"
 
@@ -59,6 +60,11 @@ void AudioPluginAudioProcessorEditor::paint (juce::Graphics& g)
 
 }
 
+void AudioPluginAudioProcessorEditor::repaintCheckTime(juce::Graphics& g) {
+    g.setColour (juce::Colours::white);
+    
+}
+
 void AudioPluginAudioProcessorEditor::openButtonClicked() {
     chooser = std::make_unique<juce::FileChooser> ("Select a Wave file to play...", juce::File {}, "*.wav");
     auto chooserFlags = juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles;
@@ -89,11 +95,11 @@ void AudioPluginAudioProcessorEditor::sliderValueChanged(juce::Slider* slider) {
 
 void AudioPluginAudioProcessorEditor::timerCallback()
 {
-    if (processorRef.getRepaint() == true)
-    {
+//    if (processorRef.getRepaint() == true)
+  //  {
         std::cout << "Redrawing" << std::endl;
         repaint();
         std::cout << "Redrawn?" << std::endl;
         processorRef.setRepaint(false);
-    }
+  //  }
 }
