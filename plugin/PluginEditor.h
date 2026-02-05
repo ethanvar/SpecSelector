@@ -27,8 +27,6 @@ private:
     juce::Slider midiVolume;
     juce::TextButton checkTime;
     juce::TextButton openButton;
-    double lastTrackTime = 0.0;
-    bool progressMaskNeedsRepaint = false;
     std::unique_ptr<juce::FileChooser> chooser;
 
     // This reference is provided as a quick way for your editor to
