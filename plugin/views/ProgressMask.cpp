@@ -1,14 +1,32 @@
 #include "ProgressMask.h"
+#include "juce_graphics/juce_graphics.h"
 
 ProgressMask::ProgressMask(): progressMask(juce::Image::RGB, 1200, 600, true) {
+    progressMask.clear(getLocalBounds(), juce::Colours::transparentBlack);
 }
 
 ProgressMask::~ProgressMask() {
 }
 
-void ProgressMask::setMask(juce::Graphics& g, juce::Rectangle<int>& r, double& progress, double& songLength)
-{
+void ProgressMask::updateProgress(double progress, double songLength) {
+    if ((std::abs(currentProgress - progress) > 0.01) || (std::abs(currentProgress - progress) > 0.01)) {
+        currentProgress = progress;
+        currentSongLength = songLength;
+        repaint();
+    }
+}
+
+void ProgressMask::paint(juce::Graphics& g) {
+    if (currentSongLength <= 0.0) return;
+
+    juce::Rectangle<int> bounds = getLocalBounds();
     juce::RectanglePlacement placement;
-    int maskValue = (progress/songLength) * r.getWidth();  
-    g.drawImageWithin(progressMask, r.getX(), r.getY(), maskValue, r.getHeight(), placement, false);
+
+    int maskValue = (currentProgress/currentSongLength) * bounds.getWidth();
+
+    g.drawImageWithin(progressMask, bounds.getX(), bounds.getY(), maskValue, bounds.getHeight(), placement, false);
+}
+
+void ProgressMask::resized() {
+
 }

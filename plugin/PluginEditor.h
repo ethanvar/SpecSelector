@@ -2,6 +2,7 @@
 
 #include "PluginProcessor.h"
 #include "juce_gui_basics/juce_gui_basics.h"
+#include "views/ProgressMask.h"
 
 //==============================================================================
 class AudioPluginAudioProcessorEditor final : public juce::AudioProcessorEditor, private juce::Slider::Listener, private juce::Timer
@@ -16,17 +17,18 @@ public:
     void checkTimeClicked();
     void openButtonClicked();
     void timerCallback() override;
-    void repaintCheckTime(juce::Graphics&);
 
 private:
     // Rectangle area for spectrogram visualization
     juce::Rectangle<int> spectrogramBounds;
     juce::Image specImage;
-    juce::Image progressMask;
+    ProgressMask mask;
     void sliderValueChanged (juce::Slider * slider) override;
     juce::Slider midiVolume;
     juce::TextButton checkTime;
     juce::TextButton openButton;
+    double lastTrackTime = 0.0;
+    bool progressMaskNeedsRepaint = false;
     std::unique_ptr<juce::FileChooser> chooser;
 
     // This reference is provided as a quick way for your editor to

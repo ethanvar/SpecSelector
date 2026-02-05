@@ -5,7 +5,7 @@
 
 //==============================================================================
 AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAudioProcessor& p)
-    : AudioProcessorEditor (&p), processorRef (p), specImage (juce::Image::RGB, 1200, 600, true), progressMask(juce::Image::RGB, 1200, 600, true)
+    : AudioProcessorEditor (&p), processorRef (p), specImage (juce::Image::RGB, 1200, 600, true)
 {
     juce::ignoreUnused (processorRef);
     startTimerHz(60); 
@@ -16,6 +16,9 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     // Initialize spectrogram bounds (centered, 75% width, 50% height)
     spectrogramBounds = getLocalBounds().withSizeKeepingCentre(
         getWidth() * 75 / 100, getHeight() * 50 / 100);
+    addAndMakeVisible(mask);
+    mask.setBounds(spectrogramBounds);
+
     midiVolume.setSliderStyle (juce::Slider::LinearBarVertical);
     midiVolume.setRange (0.0, 127.0, 1.0);
     midiVolume.setTextBoxStyle (juce::Slider::NoTextBox, false, 90, 0);
@@ -60,11 +63,6 @@ void AudioPluginAudioProcessorEditor::paint (juce::Graphics& g)
 
 }
 
-void AudioPluginAudioProcessorEditor::repaintCheckTime(juce::Graphics& g) {
-    g.setColour (juce::Colours::white);
-    
-}
-
 void AudioPluginAudioProcessorEditor::openButtonClicked() {
     chooser = std::make_unique<juce::FileChooser> ("Select a Wave file to play...", juce::File {}, "*.wav");
     auto chooserFlags = juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles;
@@ -87,6 +85,7 @@ void AudioPluginAudioProcessorEditor::resized()
     midiVolume.setBounds (40, 30, 20, getHeight() - 60);
     openButton.setBounds ((getWidth()/2)-40, 60, 80, 30);
     checkTime.setBounds ((getWidth()/2)-40, 100, 80, 30);
+    mask.setBounds(spectrogramBounds);
 }
 
 void AudioPluginAudioProcessorEditor::sliderValueChanged(juce::Slider* slider) {
@@ -95,11 +94,14 @@ void AudioPluginAudioProcessorEditor::sliderValueChanged(juce::Slider* slider) {
 
 void AudioPluginAudioProcessorEditor::timerCallback()
 {
-//    if (processorRef.getRepaint() == true)
-  //  {
+    double currentTime = processorRef.retTrackTimeInSeconds();
+    double songLength = processorRef.retLoadedSongInSeconds();
+    mask.updateProgress(currentTime, songLength);
+
+    if (processorRef.getRepaint() == true) {
         std::cout << "Redrawing" << std::endl;
         repaint();
         std::cout << "Redrawn?" << std::endl;
         processorRef.setRepaint(false);
-  //  }
+    }
 }

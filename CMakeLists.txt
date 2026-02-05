@@ -34,6 +34,8 @@ target_sources(SpecSelector
         plugin/PluginEditor.h
         plugin/stft/Stft.cpp
         plugin/stft/Stft.h
+        plugin/views/ProgressMask.cpp
+        plugin/views/ProgressMask.h
 )
 
 target_compile_definitions(SpecSelector
