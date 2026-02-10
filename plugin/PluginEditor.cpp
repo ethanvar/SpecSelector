@@ -5,7 +5,7 @@
 
 //==============================================================================
 AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAudioProcessor& p)
-    : AudioProcessorEditor (&p), processorRef (p), specImage (juce::Image::RGB, 1200, 600, true)
+    : AudioProcessorEditor (&p), processorRef (p), stftDisplay(p)
 {
     juce::ignoreUnused (processorRef);
     startTimerHz(60); 
@@ -18,6 +18,8 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
         getWidth() * 75 / 100, getHeight() * 50 / 100);
     addAndMakeVisible(mask);
     mask.setBounds(spectrogramBounds);
+    addAndMakeVisible(stftDisplay);
+    stftDisplay.setBounds(spectrogramBounds);
 
     midiVolume.setSliderStyle (juce::Slider::LinearBarVertical);
     midiVolume.setRange (0.0, 127.0, 1.0);
@@ -42,6 +44,7 @@ AudioPluginAudioProcessorEditor::~AudioPluginAudioProcessorEditor()
 //==============================================================================
 void AudioPluginAudioProcessorEditor::paint (juce::Graphics& g)
 {
+    std::cout << processorRef.getRepaint() << std::endl;
     // (Our component is opaque, so we must completely fill the background with a solid colour)
     g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
 
@@ -59,7 +62,7 @@ void AudioPluginAudioProcessorEditor::paint (juce::Graphics& g)
     g.setColour (juce::Colours::white);
 
     // g.drawImage (specImage, spectrogramBounds.toFloat());
-    g.drawImageWithin(specImage, spectrogramBounds.getX(), spectrogramBounds.getY(), spectrogramBounds.getWidth(), spectrogramBounds.getHeight(), placement, false);
+    //g.drawImageWithin(specImage, spectrogramBounds.getX(), spectrogramBounds.getY(), spectrogramBounds.getWidth(), spectrogramBounds.getHeight(), placement, false);
 
 }
 
@@ -68,7 +71,7 @@ void AudioPluginAudioProcessorEditor::openButtonClicked() {
     auto chooserFlags = juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles;
     chooser->launchAsync (chooserFlags, [this] (const juce::FileChooser& fc) {
         auto file = fc.getResult();
-        processorRef.loadFile(file, specImage);
+        processorRef.loadFile(file);
     });
     openButton.setEnabled (true);
 }
@@ -100,7 +103,8 @@ void AudioPluginAudioProcessorEditor::timerCallback()
 
     if (processorRef.getRepaint() == true) {
         std::cout << "Redrawing" << std::endl;
-        repaint();
+        stftDisplay.repaint();
+        //repaint();
         std::cout << "Redrawn?" << std::endl;
         processorRef.setRepaint(false);
     }

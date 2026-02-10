@@ -1,8 +1,7 @@
 #include "ProgressMask.h"
 #include "juce_graphics/juce_graphics.h"
 
-ProgressMask::ProgressMask(): progressMask(juce::Image::RGB, 1200, 600, true) {
-    progressMask.clear(getLocalBounds(), juce::Colours::transparentBlack);
+ProgressMask::ProgressMask() {
 }
 
 ProgressMask::~ProgressMask() {
@@ -21,10 +20,9 @@ void ProgressMask::paint(juce::Graphics& g) {
 
     juce::Rectangle<int> bounds = getLocalBounds();
     juce::RectanglePlacement placement;
-
     int maskValue = (currentProgress/currentSongLength) * bounds.getWidth();
-
-    g.drawImageWithin(progressMask, bounds.getX(), bounds.getY(), maskValue, bounds.getHeight(), placement, false);
+    juce::Image actualProgress(juce::Image::RGB, maskValue, bounds.getHeight(), true);
+    g.drawImageAt(actualProgress, bounds.getX(), bounds.getY(), false);
 }
 
 void ProgressMask::resized() {

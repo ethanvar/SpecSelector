@@ -163,7 +163,7 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     }
 }
 
-void AudioPluginAudioProcessor::loadFile(const juce::File& audioFile, juce::Image& specImage)
+void AudioPluginAudioProcessor::loadFile(const juce::File& audioFile)
 {
     if (audioFile.existsAsFile()) {
         std::cout<< "Selected file: " << audioFile.getFullPathName() << std::endl;
@@ -179,7 +179,7 @@ void AudioPluginAudioProcessor::loadFile(const juce::File& audioFile, juce::Imag
             std::cout << "Please dont seg fault" << std::endl;
             stft.processEntireFile(reader);
             // stft.printStftValues();
-            stft.drawSpectorgramWithStft(specImage);
+            //stft.drawSpectorgramWithStft(specImage);
             repaint = true;
             std::cout << repaint << std::endl;
             readerSource.reset (newSource.release());

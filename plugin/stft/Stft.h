@@ -40,4 +40,5 @@ class Stft {
         void addLineToStft(std::array<float, StftSegment::fftSize * 2> &fourierData);
         void printStftValues();
         void drawSpectorgramWithStft(juce::Image &specImage);
+        bool hasData() const;
 };

@@ -3,6 +3,7 @@
 #include "PluginProcessor.h"
 #include "juce_gui_basics/juce_gui_basics.h"
 #include "views/ProgressMask.h"
+#include "views/StftDisplay.h"
 
 //==============================================================================
 class AudioPluginAudioProcessorEditor final : public juce::AudioProcessorEditor, private juce::Slider::Listener, private juce::Timer
@@ -21,8 +22,9 @@ public:
 private:
     // Rectangle area for spectrogram visualization
     juce::Rectangle<int> spectrogramBounds;
-    juce::Image specImage;
+    //juce::Image specImage;
     ProgressMask mask;
+    StftDisplay stftDisplay;
     void sliderValueChanged (juce::Slider * slider) override;
     juce::Slider midiVolume;
     juce::TextButton checkTime;

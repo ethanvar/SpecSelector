@@ -140,9 +140,11 @@ void Stft::drawSpectorgramWithStft(juce::Image& specImage)
 }
 
 
+bool Stft::hasData() const {
+    return !m_stft.empty();
+}
 
-
-// void AudioPluginAudioProcessor::drawNextLineOfSpectrogram(juce::Image &specImage, 
+// void AudioPluginAudioProcessor::drawNextLineOfSpectrogram(juce::Image &specImage,
 //                                                            std::array<float, fftSize * 2> &fourierData, int sliceWidth)  {
 //     //Add spectogram,  parameter 
 //     auto w = specImage.getWidth();

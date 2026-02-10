@@ -46,7 +46,7 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
     float noteOnVel = 50;
-    void loadFile(const juce::File& audioFile, juce::Image& specImage);
+    void loadFile(const juce::File& audioFile);
     juce::AudioTransportSource transportSource;
 
     static constexpr auto fftOrder = 9;
