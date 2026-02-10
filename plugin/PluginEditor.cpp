@@ -104,8 +104,6 @@ void AudioPluginAudioProcessorEditor::timerCallback()
     if (processorRef.getRepaint() == true) {
         std::cout << "Redrawing" << std::endl;
         stftDisplay.repaint();
-        //repaint();
         std::cout << "Redrawn?" << std::endl;
-        processorRef.setRepaint(false);
     }
 }
