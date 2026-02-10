@@ -5,6 +5,7 @@
 StftDisplay::StftDisplay(AudioPluginAudioProcessor& p) : processorRef(p), spectrogram(juce::Image::RGB, getLocalBounds().getWidth(), getLocalBounds().getHeight(), true) {
   std::cout << "StftDisplay Created!" << std::endl;  
   setInterceptsMouseClicks(false, false);
+  setBufferedToImage(true);
 }
 
 StftDisplay::~StftDisplay() {

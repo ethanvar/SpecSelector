@@ -16,10 +16,10 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     // Initialize spectrogram bounds (centered, 75% width, 50% height)
     spectrogramBounds = getLocalBounds().withSizeKeepingCentre(
         getWidth() * 75 / 100, getHeight() * 50 / 100);
-    addAndMakeVisible(mask);
-    mask.setBounds(spectrogramBounds);
     addAndMakeVisible(stftDisplay);
     stftDisplay.setBounds(spectrogramBounds);
+    addAndMakeVisible(mask);
+    mask.setBounds(spectrogramBounds);
 
     midiVolume.setSliderStyle (juce::Slider::LinearBarVertical);
     midiVolume.setRange (0.0, 127.0, 1.0);
