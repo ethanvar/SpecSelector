@@ -20,7 +20,8 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     stftDisplay.setBounds(spectrogramBounds);
     addAndMakeVisible(mask);
     mask.setBounds(spectrogramBounds);
-
+    mask.setFftSize(processorRef.fftSize);
+    
     midiVolume.setSliderStyle (juce::Slider::LinearBarVertical);
     midiVolume.setRange (0.0, 127.0, 1.0);
     midiVolume.setTextBoxStyle (juce::Slider::NoTextBox, false, 90, 0);
@@ -44,7 +45,6 @@ AudioPluginAudioProcessorEditor::~AudioPluginAudioProcessorEditor()
 //==============================================================================
 void AudioPluginAudioProcessorEditor::paint (juce::Graphics& g)
 {
-    std::cout << processorRef.getRepaint() << std::endl;
     // (Our component is opaque, so we must completely fill the background with a solid colour)
     g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
 
@@ -97,8 +97,8 @@ void AudioPluginAudioProcessorEditor::sliderValueChanged(juce::Slider* slider) {
 
 void AudioPluginAudioProcessorEditor::timerCallback()
 {
-    double currentTime = processorRef.retTrackTimeInSeconds();
-    double songLength = processorRef.retLoadedSongInSeconds();
+    double currentTime = processorRef.retSamplesPassed();
+    double songLength = processorRef.retLoadedSongInSamples();
     mask.updateProgress(currentTime, songLength);
 
     if (processorRef.getRepaint() == true) {

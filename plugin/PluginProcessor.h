@@ -56,6 +56,8 @@ public:
     bool getRepaint();
     double retTrackTimeInSeconds();
     double retLoadedSongInSeconds();
+    double retSamplesPassed(); 
+    double retLoadedSongInSamples();
     Stft stft;
 
 private:

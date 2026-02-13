@@ -1,4 +1,5 @@
 #include "Stft.h"
+#include "juce_audio_basics/juce_audio_basics.h"
 
 #include <iostream>
 
@@ -47,13 +48,15 @@ void Stft::processEntireFile(juce::AudioFormatReader* reader) {
         if (i > 0 && ((i%fftSize) == 0)) {
             std::fill (fourierData.begin(), fourierData.end(), 0.0f);
             std::copy (firstOut.begin(), firstOut.end(), fourierData.begin());
-            if (overZero) {
+            //if (overZero) {
                 addLineToStft(fourierData);
-            }
+            //}
             overZero = false;
             index = 0;
         }
     }
+    findMinMax();
+    //i
 }
 
 void Stft::addLineToStft(std::array<float, fftSize * 2> &fourierData) {
@@ -96,8 +99,8 @@ void Stft::drawSpectorgramWithStft(juce::Image& specImage)
         const float* fftMagnitudes = m_stft[i].frequencyData.data();
 
         // Find min/max for normalization (considering only half of the FFT bins)
-        auto minMax = juce::FloatVectorOperations::findMinAndMax(fftMagnitudes, m_fftSize / 2);
-        float maxLevel = juce::jmax(minMax.getEnd(), 1.0e-6f);
+        auto maxLevel = juce::FloatVectorOperations::findMinAndMax(fftMagnitudes, m_fftSize / 2);
+        //float maxLevel = juce::jmax(minMax.getEnd(), 1.0e-6f);
 
         // Lock the **rightmost column** of the image (where we draw this FFT)
         juce::Image::BitmapData bitmap(
@@ -113,15 +116,14 @@ void Stft::drawSpectorgramWithStft(juce::Image& specImage)
         for (int y = 0; y < imageHeight; ++y)
         {
             // Map pixel Y → normalized frequency bin (0..1)
-            auto skewedProportionY = 1.0f - std::exp (std::log ((float) y / (float) imageHeight) * 0.2f);
+            float skewedProportionY = 1.0f - std::exp (std::log ((float) y / (float) imageHeight) * 0.2f);
 
             // Map to FFT index
-            int fftIndex = juce::jlimit(0, m_fftSize / 2 - 1, static_cast<int>(skewedProportionY * (m_fftSize / 2)));
+            int fftIndex = juce::jlimit(0, m_fftSize / 2, static_cast<int>(skewedProportionY * (m_fftSize / 2)));
 
             // Normalize magnitude to 0..1
-            float level = juce::jmap(fftMagnitudes[fftIndex], 0.0f, maxLevel, 0.0f, 1.0f);
+            float level = juce::jmap(fftMagnitudes[fftIndex], 0.0f, juce::jmax(maxLevel.getEnd(), 1e-5f), 0.0f, 1.0f);
             level = juce::jlimit(0.0f, 1.0f, level);
-
             // Convert magnitude → color (HSV, from low frequency red to high frequency blue)
             juce::Colour colour = juce::Colour::fromHSV(
                 level,  // hue (based on magnitude)
@@ -134,11 +136,23 @@ void Stft::drawSpectorgramWithStft(juce::Image& specImage)
             bitmap.setPixelColour(0, y, colour);
         }
 
-        // Optionally, you could add this code to move the image columns (if desired):
+        // Move column forward for next loop to draw into image
         specImage.moveImageSection(0, 0, 1, 0, imageWidth - 1, imageHeight);
     }
 }
 
+void Stft::findMinMax() {
+    const int numFrames = static_cast<int>(m_stft.size());
+    float maxNum = 0;
+    for (int i = 0; i<numFrames; ++i){
+        const float* fftMagnitudes = m_stft[i].frequencyData.data();
+        auto maxLevel = juce::FloatVectorOperations::findMinAndMax(fftMagnitudes, m_fftSize / 2);
+        if (maxNum < maxLevel.getEnd()) {
+            maxNum = maxLevel.getEnd();
+        }
+    }
+    m_maxDbGlobal = maxNum;
+}
 
 bool Stft::hasData() const {
     return !m_stft.empty();

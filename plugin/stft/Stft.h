@@ -27,7 +27,8 @@ class Stft {
         // int m_sampleRate;
         int m_currentSampleNum = 0;
         std::vector<StftSegment> m_stft;
-        
+        float m_maxDbGlobal;
+
     public:
         static constexpr auto fftOrder = 9;
         static constexpr auto fftSize = 1 << fftOrder;
@@ -36,7 +37,7 @@ class Stft {
         ~Stft();
 
         void processEntireFile(juce::AudioFormatReader *reader);
-
+        void findMinMax();
         void addLineToStft(std::array<float, StftSegment::fftSize * 2> &fourierData);
         void printStftValues();
         void drawSpectorgramWithStft(juce::Image &specImage);

@@ -223,11 +223,26 @@ double AudioPluginAudioProcessor::retTrackTimeInSeconds(){
 }
 
 double AudioPluginAudioProcessor::retLoadedSongInSeconds() {
-  if (auto t = transportSource.getLengthInSeconds()) {
-      return t;
-  }
+    if (auto t = transportSource.getLengthInSeconds()) {
+        return t;
+    }
 
   return 0.0; 
+}
+double AudioPluginAudioProcessor::retSamplesPassed() {
+    if (auto t = currentPosition.getTimeInSamples()){
+        return *t;
+    }
+
+  return 0.0;
+}
+
+double AudioPluginAudioProcessor::retLoadedSongInSamples() {
+    if (auto t = transportSource.getTotalLength()){
+        return t;
+    }
+
+    return 0.0;
 }
 
 void AudioPluginAudioProcessor::setRepaint(bool value) {
