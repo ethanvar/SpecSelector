@@ -21,7 +21,8 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     addAndMakeVisible(mask);
     mask.setBounds(spectrogramBounds);
     mask.setFftSize(processorRef.fftSize);
-    
+    mask.setNumFrames(processorRef.stft.getNumFrames());
+
     midiVolume.setSliderStyle (juce::Slider::LinearBarVertical);
     midiVolume.setRange (0.0, 127.0, 1.0);
     midiVolume.setTextBoxStyle (juce::Slider::NoTextBox, false, 90, 0);
@@ -82,7 +83,6 @@ void AudioPluginAudioProcessorEditor::checkTimeClicked() {
 
 void AudioPluginAudioProcessorEditor::resized()
 {
-    // Update spectrogram bounds when window resizes
     spectrogramBounds = getLocalBounds().withSizeKeepingCentre(
         getWidth() * 75 / 100, getHeight() * 50 / 100);
     midiVolume.setBounds (40, 30, 20, getHeight() - 60);

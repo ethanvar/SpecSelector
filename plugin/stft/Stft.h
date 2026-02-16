@@ -28,6 +28,7 @@ class Stft {
         int m_currentSampleNum = 0;
         std::vector<StftSegment> m_stft;
         float m_maxDbGlobal;
+        int m_numFrames;
 
     public:
         static constexpr auto fftOrder = 9;
@@ -36,6 +37,7 @@ class Stft {
         Stft();
         ~Stft();
 
+        int& getNumFrames();
         void processEntireFile(juce::AudioFormatReader *reader);
         void findMinMax();
         void addLineToStft(std::array<float, StftSegment::fftSize * 2> &fourierData);

@@ -176,6 +176,7 @@ void AudioPluginAudioProcessor::loadFile(const juce::File& audioFile)
             std::cout << "Format created: " << reader->getFormatName() << std::endl;
             auto newSource = std::make_unique<juce::AudioFormatReaderSource> (reader, true);
             transportSource.setSource (newSource.get(), 0, nullptr, reader->sampleRate);
+            std::cout << "Total length in samples: " << transportSource.getTotalLength() << std::endl;
             std::cout << "Please dont seg fault" << std::endl;
             stft.processEntireFile(reader);
             // stft.printStftValues();

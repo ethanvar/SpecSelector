@@ -91,7 +91,9 @@ void Stft::drawSpectorgramWithStft(juce::Image& specImage)
     // Guard: no frames or nothing fits
     if (numFrames <= 0 || imageHeight <= 0 || imageWidth <= 0)
         return;
-
+    std::cout << "Number of frames: " <<numFrames << std::endl;
+    m_numFrames = numFrames;
+    std::cout << "Pointer to numframes" << &m_numFrames << std::endl;
     // Loop over each FFT frame
     for (int i = 0; i < numFrames; ++i)
     {
@@ -152,6 +154,10 @@ void Stft::findMinMax() {
         }
     }
     m_maxDbGlobal = maxNum;
+}
+
+int& Stft::getNumFrames() {
+    return m_numFrames;
 }
 
 bool Stft::hasData() const {

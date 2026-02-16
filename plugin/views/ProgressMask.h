@@ -13,11 +13,13 @@ class ProgressMask: public juce::Component {
         void updateProgress(double progress, double songLength);
         void resized() override;
         void setFftSize(int size);        
+        void setNumFrames(int& frames);
 
     private:
-        double currentProgress = 0.0;
-        double currentSongLength = 1.0;
-        int fftSize = 0;
+        double m_currentProgress = 0.0;
+        double m_currentSongLength = 1.0;
+        int m_fftSize = 0;
+        int* m_numFrames = 0;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ProgressMask)
 };
