@@ -1,5 +1,7 @@
 #include "Stft.h"
 #include "juce_audio_basics/juce_audio_basics.h"
+#include "juce_audio_formats/juce_audio_formats.h"
+#include "juce_graphics/juce_graphics.h"
 
 #include <iostream>
 
@@ -14,12 +16,9 @@ Stft::~Stft () {
 
 void Stft::processEntireFile(juce::AudioFormatReader* reader) {
     m_stft.clear();
-    // use tranposrtSource to read ahead of live processBlock and process spectogram in advance
-    // std::cout << "total sample length: " << reader->lengthInSamples << std::endl;
     std::cout << "Format created, again: " << reader->getFormatName() << std::endl;
 
     juce::AudioBuffer<float> fullBuffer((int)reader->numChannels, (int)reader->lengthInSamples);
-    // juce::AudioSourceChannelInfo bufferToFill = juce::AudioSourceChannelInfo(fullBuffer);
 
     std::array<float, fftSize> firstOut;
     std::array<float, fftSize * 2> fourierData;
@@ -33,30 +32,22 @@ void Stft::processEntireFile(juce::AudioFormatReader* reader) {
 
     int index = 0;
 
-    std::cout << "Is it segfaulting here?" << std::endl;
     std::cout << "Checking buffer: " << fullBuffer.getSample(0, 500) << std::endl;
-    std::cout << "First out size: " << firstOut.size() << std::endl;
+    std::cout << "Number of samples from buffer: " << fullBuffer.getNumSamples() << std::endl;
 
-    bool overZero = false;
     for (int i = 0; i < fullBuffer.getNumSamples(); i++) {
         firstOut[(size_t) index++] = fullBuffer.getSample(0, i);
-
-        if (fullBuffer.getSample(0, i) != 0.0f) {
-            overZero = true;
-        }
     
-        if (i > 0 && ((i%fftSize) == 0)) {
+        if (i > 0 && fftSize == index) {
             std::fill (fourierData.begin(), fourierData.end(), 0.0f);
             std::copy (firstOut.begin(), firstOut.end(), fourierData.begin());
-            //if (overZero) {
-                addLineToStft(fourierData);
-            //}
-            overZero = false;
+
+            addLineToStft(fourierData);
+
             index = 0;
         }
     }
     findMinMax();
-    //i
 }
 
 void Stft::addLineToStft(std::array<float, fftSize * 2> &fourierData) {
@@ -86,14 +77,12 @@ void Stft::drawSpectorgramWithStft(juce::Image& specImage)
 {
     const int imageWidth  = specImage.getWidth();
     const int imageHeight = specImage.getHeight();
-    const int numFrames   = static_cast<int>(m_stft.size());
+    const int numFrames   = static_cast<int>(m_stft.size()); 
 
-    // Guard: no frames or nothing fits
     if (numFrames <= 0 || imageHeight <= 0 || imageWidth <= 0)
         return;
     std::cout << "Number of frames: " <<numFrames << std::endl;
-    m_numFrames = numFrames;
-    std::cout << "Pointer to numframes" << &m_numFrames << std::endl;
+    std::cout << "Number of 'samples'" << m_currentSampleNum << std::endl;
     // Loop over each FFT frame
     for (int i = 0; i < numFrames; ++i)
     {
@@ -135,7 +124,14 @@ void Stft::drawSpectorgramWithStft(juce::Image& specImage)
             );
 
             // Set the pixel color based on the calculated magnitude
-            bitmap.setPixelColour(0, y, colour);
+            
+            if (i < 20) {
+                bitmap.setPixelColour(0, y, juce::Colours::orange); 
+            } else if (i > numFrames-20) {
+                bitmap.setPixelColour(0, y, juce::Colours::orange); 
+            } else {
+                bitmap.setPixelColour(0, y, colour); 
+            }
         }
 
         // Move column forward for next loop to draw into image
@@ -157,7 +153,7 @@ void Stft::findMinMax() {
 }
 
 int& Stft::getNumFrames() {
-    return m_numFrames;
+    return m_currentSampleNum;
 }
 
 bool Stft::hasData() const {

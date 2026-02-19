@@ -28,10 +28,9 @@ class Stft {
         int m_currentSampleNum = 0;
         std::vector<StftSegment> m_stft;
         float m_maxDbGlobal;
-        int m_numFrames;
 
     public:
-        static constexpr auto fftOrder = 9;
+        static constexpr auto fftOrder = 9; 
         static constexpr auto fftSize = 1 << fftOrder;
 
         Stft();

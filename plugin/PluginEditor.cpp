@@ -11,7 +11,8 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     startTimerHz(60); 
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    setSize (1024, 768);
+    setSize (1648, 768);
+ 
     juce::Logger::getCurrentLogger()->writeToLog ("Hello");
     // Initialize spectrogram bounds (centered, 75% width, 50% height)
     spectrogramBounds = getLocalBounds().withSizeKeepingCentre(
@@ -97,8 +98,10 @@ void AudioPluginAudioProcessorEditor::sliderValueChanged(juce::Slider* slider) {
 
 void AudioPluginAudioProcessorEditor::timerCallback()
 {
-    double currentTime = processorRef.retSamplesPassed();
-    double songLength = processorRef.retLoadedSongInSamples();
+    //double currentTime = processorRef.retSamplesPassed();
+    //double songLength = processorRef.retLoadedSongInSamples();
+    double songLength = processorRef.retLoadedSongInSeconds();
+    double currentTime = processorRef.retTrackTimeInSeconds();
     mask.updateProgress(currentTime, songLength);
 
     if (processorRef.getRepaint() == true) {

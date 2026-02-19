@@ -49,12 +49,11 @@ public:
     void loadFile(const juce::File& audioFile);
     juce::AudioTransportSource transportSource;
 
-    static constexpr auto fftOrder = 9;
-    static constexpr auto fftSize = 1 << fftOrder;
-    // bool repaint = false;
-    void setRepaint(bool value);
-    bool getRepaint();
-    double retTrackTimeInSeconds();
+    static constexpr auto fftOrder = 9; 
+    static constexpr auto fftSize = 1 << fftOrder; 
+    void setRepaint(bool value); 
+    bool getRepaint(); 
+    double retTrackTimeInSeconds(); 
     double retLoadedSongInSeconds();
     double retSamplesPassed(); 
     double retLoadedSongInSamples();

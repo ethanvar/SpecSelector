@@ -11,7 +11,6 @@ class StftDisplay : public juce::Component {
         
         void paint(juce::Graphics &g) override;
         void resized() override;
- //       void updateProgress(double progress, double songLength);
 
     private:
         juce::Image spectrogram;

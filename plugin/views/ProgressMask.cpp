@@ -19,11 +19,18 @@ void ProgressMask::paint(juce::Graphics& g) {
     
     if (m_currentSongLength <= 0.0) return;
 
-    std::cout << "Number of frames: " << *m_numFrames << std::endl;
+    //std::cout << "Number of frames: " << *m_numFrames << std::endl;
     juce::Rectangle<int> bounds = getLocalBounds();
     juce::RectanglePlacement placement;
-    int maskValue = (m_currentProgress/m_currentSongLength)*bounds.getWidth();
-    std::cout << maskValue << std::endl;
+    //int currFramesPassed = ((double) m_currentProgress / double (m_fftSize*2));
+    //std::cout << "currFramesPassed: " << currFramesPassed << std::endl;
+    //double percentOfTotalFramesPassed = (double) currFramesPassed / (double) *m_numFrames;
+    //std::cout << "Progress over frames: " << percentOfTotalFramesPassed << std::endl;
+    //std::cout << "Current progress: " << m_currentProgress << std::endl;
+    //std::cout << "Current song length: " << m_currentSongLength << std::endl;
+    double maskValue = (m_currentProgress/m_currentSongLength) * bounds.getWidth();
+    //double maskValue = (percentOfTotalFramesPassed) * bounds.getWidth();
+    //std::cout << maskValue << std::endl;
     g.setColour(juce::Colours::black.withAlpha(0.5f));
     juce::Image actualProgress(juce::Image::RGB, maskValue, bounds.getHeight(), true);
     g.drawImageAt(actualProgress, bounds.getX(), bounds.getY(), false);
