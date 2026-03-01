@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.22)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 project(SpecSelector VERSION 1.0.0 LANGUAGES C CXX)
 
@@ -32,6 +33,8 @@ target_sources(SpecSelector
         plugin/PluginProcessor.h
         plugin/PluginEditor.cpp
         plugin/PluginEditor.h
+        plugin/Mediator.cpp
+        plugin/Mediator.h
         plugin/stft/Stft.cpp
         plugin/stft/Stft.h
         plugin/views/ProgressMask.cpp
