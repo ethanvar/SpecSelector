@@ -14,6 +14,8 @@ class ProgressMask: public juce::Component {
         void resized() override;
         void setFftSize(int size);        
         void setNumFrames(int& frames);
+        double getCurrentProgress();
+        double getCurrentSongLength();
 
     private:
         double m_currentProgress = 0.0;

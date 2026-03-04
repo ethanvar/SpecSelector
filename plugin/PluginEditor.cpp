@@ -1,3 +1,4 @@
+#include "Mediator.h"
 #include "PluginProcessor.h"
 #include "juce_graphics/juce_graphics.h"
 #include <iostream>
@@ -5,7 +6,7 @@
 
 //==============================================================================
 AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAudioProcessor& p)
-    : AudioProcessorEditor (&p), processorRef (p), stftDisplay(p)
+    : AudioProcessorEditor (&p), processorRef (p), mediator(p)
 {
     juce::ignoreUnused (processorRef);
     startTimerHz(60); 
@@ -17,12 +18,14 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     // Initialize spectrogram bounds (centered, 75% width, 50% height)
     spectrogramBounds = getLocalBounds().withSizeKeepingCentre(
         getWidth() * 75 / 100, getHeight() * 50 / 100);
-    addAndMakeVisible(stftDisplay);
-    stftDisplay.setBounds(spectrogramBounds);
-    addAndMakeVisible(mask);
-    mask.setBounds(spectrogramBounds);
-    mask.setFftSize(processorRef.fftSize);
-    mask.setNumFrames(processorRef.stft.getNumFrames());
+    addAndMakeVisible(mediator);
+    mediator.setBounds(spectrogramBounds);
+    //addAndMakeVisible(stftDisplay);
+    //stftDisplay.setBounds(spectrogramBounds);
+    //addAndMakeVisible(mask);
+    //mask.setBounds(spectrogramBounds);
+    //mask.setFftSize(processorRef.fftSize);
+    //mask.setNumFrames(processorRef.stft.getNumFrames());
 
     midiVolume.setSliderStyle (juce::Slider::LinearBarVertical);
     midiVolume.setRange (0.0, 127.0, 1.0);
@@ -51,9 +54,6 @@ void AudioPluginAudioProcessorEditor::paint (juce::Graphics& g)
     g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
 
     // Draw spectrogram placeholder rectangle
-    g.setColour (juce::Colours::darkgrey);
-    g.fillRect (spectrogramBounds);
-    g.setColour (juce::Colours::lightgrey);
     g.drawRect (spectrogramBounds, 2);
     g.setColour (juce::Colours::black);
     g.setFont (15.0f);
@@ -89,7 +89,8 @@ void AudioPluginAudioProcessorEditor::resized()
     midiVolume.setBounds (40, 30, 20, getHeight() - 60);
     openButton.setBounds ((getWidth()/2)-40, 60, 80, 30);
     checkTime.setBounds ((getWidth()/2)-40, 100, 80, 30);
-    mask.setBounds(spectrogramBounds);
+    mediator.setBounds(spectrogramBounds);
+    //mask.setBounds(spectrogramBounds);
 }
 
 void AudioPluginAudioProcessorEditor::sliderValueChanged(juce::Slider* slider) {
@@ -102,11 +103,11 @@ void AudioPluginAudioProcessorEditor::timerCallback()
     //double songLength = processorRef.retLoadedSongInSamples();
     double songLength = processorRef.retLoadedSongInSeconds();
     double currentTime = processorRef.retTrackTimeInSeconds();
-    mask.updateProgress(currentTime, songLength);
+    mediator.updateMaskProgress(currentTime, songLength);
 
     if (processorRef.getRepaint() == true) {
         std::cout << "Redrawing" << std::endl;
-        stftDisplay.repaint();
+        mediator.repaint();
         std::cout << "Redrawn?" << std::endl;
     }
 }

@@ -15,20 +15,21 @@ void StftDisplay::paint(juce::Graphics& g) {
     if (!processorRef.getRepaint()) return;
     auto bounds = getLocalBounds();
 
-    std::cout << "painting Stft display" << std::endl;
-
-    if (bounds.isEmpty())
+    if (bounds.isEmpty()) {
+        std::cout << "NO bounds!" << std::endl;
         return;
+    }
 
     g.fillAll (juce::Colours::black);
-
-    //juce::Image newImage(juce::Image::RGB, bounds.getWidth(), bounds.getHeight(), true);
-    //g.drawImageWithin (spectrogram, 0, 0, bounds.getWidth(), bounds.getHeight(), juce::RectanglePlacement::stretchToFit);
     
     processorRef.stft.drawSpectorgramWithStft(spectrogram);
 
     g.drawImage(spectrogram, bounds.toFloat());
     processorRef.setRepaint(false);
+}
+
+void StftDisplay::checking() {
+    std::cout << "CHEKCKED" << std::endl;
 }
 
 void StftDisplay::resized() {
@@ -37,15 +38,5 @@ void StftDisplay::resized() {
     if (bounds.isEmpty()) return;
 
     spectrogram = juce::Image(juce::Image::RGB, bounds.getWidth(), bounds.getHeight(), true);
-    //if (processorRef.stft.hasData()) {
-    //    repaint();
-    //}
-}
 
-//void StftDisplay::updateProgress(double progress, double songLength) {
-//    if (std::abs(currentProgress - progress) > 0.01) {
-//        currentProgress = progress;
-//        currentSongLength = songLength;
-//        repaint();
-//    }
-//}
+}

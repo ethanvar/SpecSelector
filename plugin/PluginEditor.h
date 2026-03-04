@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Mediator.h"
 #include "PluginProcessor.h"
 #include "juce_gui_basics/juce_gui_basics.h"
 #include "views/ProgressMask.h"
@@ -22,9 +23,10 @@ public:
 private:
     // Rectangle area for spectrogram visualization
     juce::Rectangle<int> spectrogramBounds;
+    Mediator mediator;
     //juce::Image specImage;
-    ProgressMask mask;
-    StftDisplay stftDisplay;
+    //ProgressMask mask;
+    //StftDisplay stftDisplay;
     void sliderValueChanged (juce::Slider * slider) override;
     juce::Slider midiVolume;
     juce::TextButton checkTime;

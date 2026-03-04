@@ -44,6 +44,14 @@ void ProgressMask::setFftSize(int size){
     m_fftSize = size;
 }
 
+double ProgressMask::getCurrentProgress() {
+    return m_currentProgress;
+}
+
+double ProgressMask::getCurrentSongLength() {
+    return m_currentSongLength;
+}
+
 void ProgressMask::resized() {
 
 }
