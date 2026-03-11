@@ -12,6 +12,7 @@ class StftDisplay : public juce::Component {
         void paint(juce::Graphics &g) override;
         void resized() override;
         void checking();
+        void updateSpectrogram();
 
     private:
         juce::Image spectrogram;

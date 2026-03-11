@@ -90,7 +90,6 @@ void AudioPluginAudioProcessorEditor::resized()
     openButton.setBounds ((getWidth()/2)-40, 60, 80, 30);
     checkTime.setBounds ((getWidth()/2)-40, 100, 80, 30);
     mediator.setBounds(spectrogramBounds);
-    //mask.setBounds(spectrogramBounds);
 }
 
 void AudioPluginAudioProcessorEditor::sliderValueChanged(juce::Slider* slider) {
@@ -99,15 +98,11 @@ void AudioPluginAudioProcessorEditor::sliderValueChanged(juce::Slider* slider) {
 
 void AudioPluginAudioProcessorEditor::timerCallback()
 {
-    //double currentTime = processorRef.retSamplesPassed();
-    //double songLength = processorRef.retLoadedSongInSamples();
     double songLength = processorRef.retLoadedSongInSeconds();
     double currentTime = processorRef.retTrackTimeInSeconds();
     mediator.updateMaskProgress(currentTime, songLength);
 
     if (processorRef.getRepaint() == true) {
-        std::cout << "Redrawing" << std::endl;
-        mediator.repaint();
-        std::cout << "Redrawn?" << std::endl;
+        mediator.updatetStftDisplay();
     }
 }

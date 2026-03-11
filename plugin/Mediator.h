@@ -12,7 +12,7 @@ class Mediator : public juce::Component {
 
         void resized() override;
         void paint(juce::Graphics &g) override;
-        void repaintStftDisplay();
+        void updatetStftDisplay();
         void updateMaskProgress(double progress, double songLength);
 
 
