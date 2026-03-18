@@ -4,6 +4,8 @@
 
 Mediator::Mediator(AudioPluginAudioProcessor &p) : processorRef(p), m_stftDisplay(p){
     addAndMakeVisible(m_stftDisplay);
+    // setSize (1253, 768);
+    // setSize (500, 768);
     
     addAndMakeVisible(m_mask);
     m_mask.setFftSize(p.fftSize);

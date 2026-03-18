@@ -18,8 +18,12 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     // Initialize spectrogram bounds (centered, 75% width, 50% height)
     spectrogramBounds = getLocalBounds().withSizeKeepingCentre(
         getWidth() * 75 / 100, getHeight() * 50 / 100);
-    addAndMakeVisible(mediator);
+    // addAndMakeVisible(mediator);
     mediator.setBounds(spectrogramBounds);
+
+    addAndMakeVisible(specViewport);
+    specViewport.setViewedComponent(&mediator, false);
+    specViewport.setScrollBarPosition(false, true);
     //addAndMakeVisible(stftDisplay);
     //stftDisplay.setBounds(spectrogramBounds);
     //addAndMakeVisible(mask);
@@ -63,8 +67,6 @@ void AudioPluginAudioProcessorEditor::paint (juce::Graphics& g)
     juce::RectanglePlacement placement;
     g.setColour (juce::Colours::white);
 
-    // g.drawImage (specImage, spectrogramBounds.toFloat());
-    //g.drawImageWithin(specImage, spectrogramBounds.getX(), spectrogramBounds.getY(), spectrogramBounds.getWidth(), spectrogramBounds.getHeight(), placement, false);
 
 }
 
@@ -85,11 +87,12 @@ void AudioPluginAudioProcessorEditor::checkTimeClicked() {
 void AudioPluginAudioProcessorEditor::resized()
 {
     spectrogramBounds = getLocalBounds().withSizeKeepingCentre(
-        getWidth() * 75 / 100, getHeight() * 50 / 100);
+        getWidth() * 50 / 100, getHeight() * 50 / 100);
     midiVolume.setBounds (40, 30, 20, getHeight() - 60);
     openButton.setBounds ((getWidth()/2)-40, 60, 80, 30);
     checkTime.setBounds ((getWidth()/2)-40, 100, 80, 30);
-    mediator.setBounds(spectrogramBounds);
+    // mediator.setBounds(spectrogramBounds);
+    specViewport.setBounds(spectrogramBounds);
 }
 
 void AudioPluginAudioProcessorEditor::sliderValueChanged(juce::Slider* slider) {

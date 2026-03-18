@@ -23,6 +23,7 @@ public:
 private:
     // Rectangle area for spectrogram visualization
     juce::Rectangle<int> spectrogramBounds;
+    juce::Viewport specViewport;
     Mediator mediator;
     //juce::Image specImage;
     //ProgressMask mask;

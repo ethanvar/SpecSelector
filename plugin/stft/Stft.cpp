@@ -78,6 +78,7 @@ void Stft::drawSpectorgramWithStft(juce::Image& specImage)
     const int imageWidth  = specImage.getWidth();
     const int imageHeight = specImage.getHeight();
     const int numFrames   = static_cast<int>(m_stft.size());
+    std::cout << "Current sample number: " << m_currentSampleNum << std::endl;
     // Loop over each FFT frame
     for (int i = 0; i < numFrames; ++i)
     {

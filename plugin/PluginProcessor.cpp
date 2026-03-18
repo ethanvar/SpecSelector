@@ -247,7 +247,6 @@ double AudioPluginAudioProcessor::retLoadedSongInSamples() {
 }
 
 void AudioPluginAudioProcessor::setRepaint(bool value) {
-    std::cout << "Setting repaint" << std::endl;
     repaint = value;
 }
 

@@ -15,6 +15,7 @@ class StftDisplay : public juce::Component {
         void updateSpectrogram();
 
     private:
+        int displayWidth;
         juce::Image spectrogram;
         AudioPluginAudioProcessor& processorRef;
 
