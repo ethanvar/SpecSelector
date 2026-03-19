@@ -12,24 +12,10 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     startTimerHz(60); 
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    setSize (1648, 768);
- 
-    juce::Logger::getCurrentLogger()->writeToLog ("Hello");
-    // Initialize spectrogram bounds (centered, 75% width, 50% height)
-    spectrogramBounds = getLocalBounds().withSizeKeepingCentre(
-        getWidth() * 75 / 100, getHeight() * 50 / 100);
-    // addAndMakeVisible(mediator);
-    mediator.setBounds(spectrogramBounds);
-
+    setSize (1024, 768);
     addAndMakeVisible(specViewport);
     specViewport.setViewedComponent(&mediator, false);
     specViewport.setScrollBarPosition(false, true);
-    //addAndMakeVisible(stftDisplay);
-    //stftDisplay.setBounds(spectrogramBounds);
-    //addAndMakeVisible(mask);
-    //mask.setBounds(spectrogramBounds);
-    //mask.setFftSize(processorRef.fftSize);
-    //mask.setNumFrames(processorRef.stft.getNumFrames());
 
     midiVolume.setSliderStyle (juce::Slider::LinearBarVertical);
     midiVolume.setRange (0.0, 127.0, 1.0);
@@ -91,7 +77,6 @@ void AudioPluginAudioProcessorEditor::resized()
     midiVolume.setBounds (40, 30, 20, getHeight() - 60);
     openButton.setBounds ((getWidth()/2)-40, 60, 80, 30);
     checkTime.setBounds ((getWidth()/2)-40, 100, 80, 30);
-    // mediator.setBounds(spectrogramBounds);
     specViewport.setBounds(spectrogramBounds);
 }
 
@@ -106,6 +91,11 @@ void AudioPluginAudioProcessorEditor::timerCallback()
     mediator.updateMaskProgress(currentTime, songLength);
 
     if (processorRef.getRepaint() == true) {
+        auto newBounds = getBounds();
+        newBounds.setWidth(processorRef.stft.getNumFrames() + 1);
+        newBounds.setHeight(newBounds.getHeight() * 50 / 100);
+        mediator.setBounds(newBounds);
+        mediator.resized();
         mediator.updatetStftDisplay();
     }
 }

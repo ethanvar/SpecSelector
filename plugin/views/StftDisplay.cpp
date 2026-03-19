@@ -13,13 +13,11 @@ StftDisplay::~StftDisplay() {
 
 void StftDisplay::updateSpectrogram() {
     processorRef.stft.drawSpectorgramWithStft(spectrogram);
-    displayWidth = processorRef.stft.getNumFrames() + 1;
     repaint();
 }
 
 void StftDisplay::paint(juce::Graphics& g) {
     auto bounds = getLocalBounds();
-    bounds.setWidth(displayWidth);
 
     std::cout << bounds.getHeight() << "And y: " << bounds.getWidth() << std::endl;
 
@@ -39,7 +37,6 @@ void StftDisplay::checking() {
 
 void StftDisplay::resized() {
     auto bounds = getLocalBounds();
-    // bounds.setWidth(displayWidth);
 
     if (bounds.isEmpty()) return;
 
