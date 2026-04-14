@@ -5,6 +5,7 @@
 #include <vector>
 #include <memory>
 #include <mutex>
+#include <juce_core/juce_core.h>
 
 // Base class for all events
 struct Event {

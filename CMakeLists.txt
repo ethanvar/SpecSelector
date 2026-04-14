@@ -41,6 +41,8 @@ target_sources(SpecSelector
         plugin/views/ProgressMask.h
         plugin/views/StftDisplay.cpp
         plugin/views/StftDisplay.h
+        plugin/events/EventBus.cpp
+        plugin/events/EventBus.h
 )
 
 target_compile_definitions(SpecSelector

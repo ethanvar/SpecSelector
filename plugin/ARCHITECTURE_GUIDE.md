@@ -7,13 +7,13 @@ This guide outlines how to refactor the current plugin architecture to improve s
 The goal is to decouple components so that changes in one area don't require modifying the central mediator.
 
 **Implementation Steps:**
-1.  **Define an Event:** Create a base `Event` class or struct (e.g., `ParameterChangedEvent`, `ClickEvent`).
+1.  **Define Event:** Create a base `Event` class or struct (e.g., `ParameterChangedEvent`, `ClickEvent`).
 2.  **Implement an Event Bus:** Create a singleton or static class, `EventBus`, responsible for managing subscriptions.
     *   It needs methods like `subscribe<T>(std::function<void(const T&)> callback)` and `publish(const Event& event)`.
 3.  **Update Components:**
-    *   **`PluginEditor`:** Instead of calling `mediator.update(...)`, it will now call `EventBus::getInstance().publish(ParameterChangedEvent{sliderID, value})`.
-    *   **`PluginProcessor`:** It will no longer receive calls from the `Mediator`. Instead, it will subscribe to the `EventBus` in its constructor: `EventBus::getInstance().subscribe<ParameterChangedEvent>(this, &AudioPluginAudioProcessor::handleParameterChange);`.
-    *   **`handleParameterChange`:** This new method in `PluginProcessor` will receive the event data and update the internal state accordingly.
+    *   **`StftDisplay`:** This component will now be responsible for detecting mouse clicks. Instead of relying on external listeners, it must publish a `ClickEvent` to the `EventBus` upon a mouse down event.
+    *   **`Mediator`:** Remove the direct `mouseDown` implementation. Instead, `Mediator` must subscribe to the `ClickEvent` on the `EventBus` in its initialization. It will implement a handler method that processes the event data.
+    *   **`PluginProcessor`:** If it needs click data, it must also subscribe to the `ClickEvent` on the `EventBus` and update its internal state accordingly.
 
 ## 2. State Management and Data Flow
 The source of truth for any piece of data (like the clicked coordinates) must be centralized and immutable once set.
