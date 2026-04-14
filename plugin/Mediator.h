@@ -14,7 +14,7 @@ class Mediator : public juce::Component {
         void paint(juce::Graphics &g) override;
         void updatetStftDisplay();
         void updateMaskProgress(double progress, double songLength);
-
+        void mouseDown(const juce::MouseEvent& event) override;
 
     private:
         AudioPluginAudioProcessor &processorRef;

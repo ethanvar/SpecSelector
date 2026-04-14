@@ -12,7 +12,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     startTimerHz(60); 
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    setSize (1024, 768);
+    setSize (1280, 720);
     addAndMakeVisible(specViewport);
     specViewport.setViewedComponent(&mediator, false);
     specViewport.setScrollBarPosition(false, true);
@@ -40,10 +40,8 @@ AudioPluginAudioProcessorEditor::~AudioPluginAudioProcessorEditor()
 //==============================================================================
 void AudioPluginAudioProcessorEditor::paint (juce::Graphics& g)
 {
-    // (Our component is opaque, so we must completely fill the background with a solid colour)
     g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
 
-    // Draw spectrogram placeholder rectangle
     g.drawRect (spectrogramBounds, 2);
     g.setColour (juce::Colours::black);
     g.setFont (15.0f);
@@ -57,7 +55,7 @@ void AudioPluginAudioProcessorEditor::paint (juce::Graphics& g)
 }
 
 void AudioPluginAudioProcessorEditor::openButtonClicked() {
-    chooser = std::make_unique<juce::FileChooser> ("Select a Wave file to play...", juce::File {}, "*.wav");
+    chooser = std::make_unique<juce::FileChooser> ("Select a Wave file to play...", juce::File {}, "*.wav;*.mp3");
     auto chooserFlags = juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles;
     chooser->launchAsync (chooserFlags, [this] (const juce::FileChooser& fc) {
         auto file = fc.getResult();

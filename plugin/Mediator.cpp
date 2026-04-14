@@ -3,6 +3,7 @@
 #include "juce_graphics/juce_graphics.h"
 
 Mediator::Mediator(AudioPluginAudioProcessor &p) : processorRef(p), m_stftDisplay(p){
+    addMouseListener(this, true);
     addAndMakeVisible(m_stftDisplay);
     // setSize (1253, 768);
     // setSize (500, 768);
@@ -14,6 +15,12 @@ Mediator::Mediator(AudioPluginAudioProcessor &p) : processorRef(p), m_stftDispla
 
 Mediator::~Mediator() {
 }
+
+void Mediator::mouseDown(const juce::MouseEvent& event) {
+    // This triggers when the image is clicked
+    std::cout << "CLICKED IMAGE AT (relative?): " << event.getMouseDownX() << ", " << event.getMouseDownY() << std::endl;
+    std::cout << "CLICKED IMAGE AT (screen): " << event.getMouseDownScreenX() << ", " << event.getMouseDownScreenY() << std::endl;
+};
 
 void Mediator::updatetStftDisplay() {
     m_stftDisplay.updateSpectrogram();
