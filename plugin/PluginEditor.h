@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Mediator.h"
+#include "views/Mediator.h"
 #include "PluginProcessor.h"
 #include "juce_gui_basics/juce_gui_basics.h"
 #include "views/ProgressMask.h"

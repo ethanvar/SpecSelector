@@ -1,9 +1,9 @@
 #pragma once
 
-#include "PluginProcessor.h"
+#include "../PluginProcessor.h"
 #include "juce_gui_basics/juce_gui_basics.h"
-#include "views/ProgressMask.h"
-#include "views/StftDisplay.h"
+#include "ProgressMask.h"
+#include "StftDisplay.h"
 
 class Mediator : public juce::Component {
     public:

@@ -1,5 +1,4 @@
 #include "Mediator.h"
-#include "PluginProcessor.h"
 #include "juce_graphics/juce_graphics.h"
 
 Mediator::Mediator(AudioPluginAudioProcessor &p) : processorRef(p), m_stftDisplay(p){

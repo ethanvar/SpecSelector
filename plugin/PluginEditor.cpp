@@ -1,4 +1,3 @@
-#include "Mediator.h"
 #include "PluginProcessor.h"
 #include "juce_graphics/juce_graphics.h"
 #include <iostream>
