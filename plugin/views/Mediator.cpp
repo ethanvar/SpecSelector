@@ -22,15 +22,15 @@ void Mediator::mouseDown(const juce::MouseEvent& event) {
 };
 
 void Mediator::updatetStftDisplay() {
-    m_stftDisplay.updateSpectrogram();
-    repaint();
+  m_stftDisplay.updateSpectrogram();
+  repaint();
 }
 
 void Mediator::updateMaskProgress(double progress, double songLength) {
-    if ((std::abs(m_mask.getCurrentProgress() - progress) > 0.01) || (std::abs(m_mask.getCurrentProgress() - progress) > 0.01)) {
-        m_mask.updateProgress(progress, songLength);
-        repaint();
-    }
+  if ((std::abs(m_mask.getCurrentProgress() - progress) > 0.01) || (std::abs(m_mask.getCurrentProgress() - progress) > 0.01)) {
+    m_mask.updateProgress(progress, songLength);
+    repaint();
+  }
 }
 
 void Mediator::paint(juce::Graphics &g) {

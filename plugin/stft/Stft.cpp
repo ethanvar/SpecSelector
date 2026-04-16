@@ -84,10 +84,19 @@ void Stft::drawSpectorgramWithStft(juce::Image& specImage)
     {
         // Get the FFT magnitudes for the current frame
         const float* fftMagnitudes = m_stft[i].frequencyData.data();
+        
+        // Calculate dB for the current frame's magnitudes
+        std::array<float, m_fftSize / 2> dbMagnitudes;
+        for (int j = 0; j < m_fftSize / 2; ++j) {
+            float magnitude = fftMagnitudes[j];
+            // Use a small epsilon to avoid log(0)
+            dbMagnitudes[j] = 20.0f * std::log10(std::max(magnitude, 1e-6f));
+        }
 
-        // Find min/max for normalization (considering only half of the FFT bins)
-        auto maxLevel = juce::FloatVectorOperations::findMinAndMax(fftMagnitudes, m_fftSize / 2);
-        //float maxLevel = juce::jmax(minMax.getEnd(), 1.0e-6f);
+        // Find min/max dB for normalization (considering only half of the FFT bins)
+        auto minMaxDb = juce::FloatVectorOperations::findMinAndMax(dbMagnitudes.data(), m_fftSize / 2);
+        float minDb = minMaxDb.getStart();
+        float maxDb = juce::jmax(minMaxDb.getEnd(), m_maxDbGlobal); // Use the local max dB found
 
         // Lock the rightmost column of the image (where we draw this FFT)
         juce::Image::BitmapData bitmap(
@@ -108,15 +117,17 @@ void Stft::drawSpectorgramWithStft(juce::Image& specImage)
             // Map to FFT index
             int fftIndex = juce::jlimit(0, m_fftSize / 2, static_cast<int>(skewedProportionY * (m_fftSize / 2)));
 
-            // Normalize magnitude to 0..1
-            float level = juce::jmap(fftMagnitudes[fftIndex], 0.0f, juce::jmax(maxLevel.getEnd(), 1e-5f), 0.0f, 1.0f);
-            // std::cout << " " << level << " ";
-            level = juce::jlimit(0.0f, 1.0f, level);
-            // Convert magnitude → color (HSV, from low frequency red to high frequency blue)
+            // Get the dB value for this frequency bin
+            float dbValue = dbMagnitudes[fftIndex];
+
+            // Normalize dB value to 0..1 based on the current frame's range
+            float normalizedDb = juce::jmap(std::pow(dbValue - minDb, 2.0f), 0.0f, std::pow(maxDb - minDb, 2.0f), 0.0f, 1.0f);
+            
+            // Convert normalized dB to color (HSV, from low frequency red to high frequency blue)
             juce::Colour colour = juce::Colour::fromHSV(
-                level,  // hue (based on magnitude)
+                normalizedDb,  // hue (based on magnitude)
                 1.0f,   // full saturation
-                level,  // value (brightness)
+                normalizedDb,  // value (brightness)
                 1.0f    // alpha
             );
 
@@ -130,7 +141,7 @@ void Stft::drawSpectorgramWithStft(juce::Image& specImage)
                 bitmap.setPixelColour(0, y, colour); 
             }
         }
-
+        
         // Move column forward for next loop to draw into image
         specImage.moveImageSection(0, 0, 1, 0, imageWidth - 1, imageHeight);
     }

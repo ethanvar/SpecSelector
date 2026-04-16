@@ -6,20 +6,20 @@
 #include "StftDisplay.h"
 
 class Mediator : public juce::Component {
-    public:
-        Mediator(AudioPluginAudioProcessor &p);
-        ~Mediator();
+  public:
+    Mediator(AudioPluginAudioProcessor &p);
+    ~Mediator();
 
-        void resized() override;
-        void paint(juce::Graphics &g) override;
-        void updatetStftDisplay();
-        void updateMaskProgress(double progress, double songLength);
-        void mouseDown(const juce::MouseEvent& event) override;
+    void resized() override;
+    void paint(juce::Graphics &g) override;
+    void updatetStftDisplay();
+    void updateMaskProgress(double progress, double songLength);
+    void mouseDown(const juce::MouseEvent& event) override;
 
-    private:
-        AudioPluginAudioProcessor &processorRef;
-        ProgressMask m_mask;
-        StftDisplay m_stftDisplay;
+  private:
+    AudioPluginAudioProcessor &processorRef;
+    ProgressMask m_mask;
+    StftDisplay m_stftDisplay;
 
-        JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Mediator)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Mediator)
 };
