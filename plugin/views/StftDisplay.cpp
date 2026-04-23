@@ -19,7 +19,7 @@ void StftDisplay::updateSpectrogram() {
 void StftDisplay::paint(juce::Graphics& g) {
     auto bounds = getLocalBounds();
 
-    std::cout << bounds.getHeight() << "And y: " << bounds.getWidth() << std::endl;
+    //std::cout << bounds.getHeight() << "And y: " << bounds.getWidth() << std::endl;
 
     if (bounds.isEmpty()) {
         return;

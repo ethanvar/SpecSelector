@@ -26,9 +26,9 @@ void ProgressMask::paint(juce::Graphics& g) {
     //std::cout << "currFramesPassed: " << currFramesPassed << std::endl;
     //double percentOfTotalFramesPassed = (double) currFramesPassed / (double) *m_numFrames;
     //std::cout << "Progress over frames: " << percentOfTotalFramesPassed << std::endl;
-    //std::cout << "Current progress: " << m_currentProgress << std::endl;
+    std::cout << "Current progress: " << m_currentProgress << std::endl;
     //std::cout << "Current song length: " << m_currentSongLength << std::endl;
-    double maskValue = (m_currentProgress/m_currentSongLength) * bounds.getWidth();
+    double maskValue = ((m_currentProgress) / m_currentSongLength) * static_cast<double>(bounds.getWidth());
     //double maskValue = (percentOfTotalFramesPassed) * bounds.getWidth();
     //std::cout << maskValue << std::endl;
     g.setColour(juce::Colours::black.withAlpha(0.5f));

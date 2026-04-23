@@ -63,7 +63,7 @@ void AudioPluginAudioProcessorEditor::openButtonClicked() {
     openButton.setEnabled (true);
 }
 
-void AudioPluginAudioProcessorEditor::checkTimeClicked() {
+void AudioPluginAudioProcessorEditor::checkTimeClicked() { 
     std::cout << processorRef.retTrackTimeInSeconds() << std::endl;
 }
 
@@ -83,16 +83,17 @@ void AudioPluginAudioProcessorEditor::sliderValueChanged(juce::Slider* slider) {
 
 void AudioPluginAudioProcessorEditor::timerCallback()
 {
-    double songLength = processorRef.retLoadedSongInSeconds();
-    double currentTime = processorRef.retTrackTimeInSeconds();
-    mediator.updateMaskProgress(currentTime, songLength);
+  double latencySeconds = processorRef.getLatencySamples() / processorRef.getSampleRate();
+  double totalSeconds = processorRef.retLoadedSongInSeconds();
+  double currentSeconds = processorRef.retTrackTimeInSeconds() + latencySeconds;
+  mediator.updateMaskProgress(currentSeconds, totalSeconds);
 
-    if (processorRef.getRepaint() == true) {
-        auto newBounds = getBounds();
-        newBounds.setWidth(processorRef.stft.getNumFrames() + 1);
-        newBounds.setHeight(newBounds.getHeight() * 50 / 100);
-        mediator.setBounds(newBounds);
-        mediator.resized();
-        mediator.updatetStftDisplay();
-    }
+  if (processorRef.getRepaint() == true) {
+    auto newBounds = getBounds();
+    newBounds.setWidth(processorRef.stft.getNumFrames() + 1);
+    newBounds.setHeight(newBounds.getHeight() * 50 / 100);
+    mediator.setBounds(newBounds);
+    mediator.resized();
+    mediator.updatetStftDisplay();
+  }
 }

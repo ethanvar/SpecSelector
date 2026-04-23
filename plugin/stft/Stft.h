@@ -15,32 +15,32 @@ struct StftSegment
 
 
 class Stft {
-    private:
-        static constexpr auto m_fftOrder = 9;
-        juce::dsp::FFT m_forwardFFT;
-        static constexpr auto m_fftSize = 1 << m_fftOrder;
-        std::array<float, m_fftSize> m_fifo;
-        std::array<float, m_fftSize * 2> m_fftData;
-        int m_fifoIndex = 0;
+  private:
+    static constexpr auto m_fftOrder = 9;
+    juce::dsp::FFT m_forwardFFT;
+    static constexpr auto m_fftSize = 1 << m_fftOrder;
+    std::array<float, m_fftSize> m_fifo;
+    std::array<float, m_fftSize * 2> m_fftData;
+    int m_fifoIndex = 0;
 
-        // int m_hopSize;
-        // int m_sampleRate;
-        int m_currentSampleNum = 0;
-        std::vector<StftSegment> m_stft;
-        float m_maxDbGlobal;
+    // int m_hopSize;
+    // int m_sampleRate;
+    int m_currentSampleNum = 0;
+    std::vector<StftSegment> m_stft;
+    float m_maxDbGlobal;
 
-    public:
-        static constexpr auto fftOrder = 9; 
-        static constexpr auto fftSize = 1 << fftOrder;
+  public:
+    static constexpr auto fftOrder = 9; 
+    static constexpr auto fftSize = 1 << fftOrder;
 
-        Stft();
-        ~Stft();
+    Stft();
+    ~Stft();
 
-        int& getNumFrames();
-        void processEntireFile(juce::AudioFormatReader *reader);
-        void findMinMax();
-        void addLineToStft(std::array<float, StftSegment::fftSize * 2> &fourierData);
-        void printStftValues();
-        void drawSpectorgramWithStft(juce::Image &specImage);
-        bool hasData() const;
+    int& getNumFrames();
+    void processEntireFile(juce::AudioFormatReader *reader);
+    void findMinMax();
+    void addLineToStft(std::array<float, StftSegment::fftSize * 2> &fourierData);
+    void printStftValues();
+    void drawSpectorgramWithStft(juce::Image &specImage);
+    bool hasData() const;
 };

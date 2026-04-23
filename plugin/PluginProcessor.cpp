@@ -232,7 +232,7 @@ double AudioPluginAudioProcessor::retLoadedSongInSeconds() {
 }
 double AudioPluginAudioProcessor::retSamplesPassed() {
     if (auto t = currentPosition.getTimeInSamples()){
-        return *t;
+      return static_cast<double>(*t);
     }
 
   return 0.0;
