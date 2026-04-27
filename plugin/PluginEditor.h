@@ -18,6 +18,8 @@ public:
     void resized() override;
     void checkTimeClicked();
     void openButtonClicked();
+    void inverseFttButton();
+    void togglePlayInverseFft();
     void timerCallback() override;
 
 private:
@@ -32,6 +34,9 @@ private:
     juce::Slider midiVolume;
     juce::TextButton checkTime;
     juce::TextButton openButton;
+    juce::TextButton inverseFft;
+    juce::TextButton playButton;
+    juce::TextButton pauseButton;
     std::unique_ptr<juce::FileChooser> chooser;
 
     // This reference is provided as a quick way for your editor to

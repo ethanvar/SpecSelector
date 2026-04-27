@@ -24,10 +24,10 @@ void Stft::processEntireFile(juce::AudioFormatReader* reader) {
   std::array<float, fftSize * 2> fourierData;
 
   if (!reader->read(&fullBuffer, 0,(int)reader->lengthInSamples, 0, true, true)) {
-      std::cout << "Failed to read audio file" << std::endl;
-      return;
+    std::cout << "Failed to read audio file" << std::endl;
+    return;
   } else {
-      std::cout << "Successfully read audio file" << std::endl;
+    std::cout << "Successfully read audio file" << std::endl;
   }
 
   int index = 0;
@@ -61,6 +61,11 @@ void Stft::addLineToStft(std::array<float, fftSize * 2> &fourierData) {
   m_stft.push_back(segment);
 }
 
+void Stft::invertFttSegments()
+{
+  std::cout << "Invertinng fft segments" << std::endl;
+}
+
 void Stft::printStftValues() {
   std::cout << "STFT contains " << m_stft.size() << " segments" << std::endl;
   for (size_t i = 0; i < m_stft.size(); ++i) {
@@ -87,9 +92,9 @@ void Stft::drawSpectorgramWithStft(juce::Image& specImage)
     // Calculate dB for the current frame's magnitudes
   std::array<float, m_fftSize / 2> dbMagnitudes;
   for (int j = 0; j < m_fftSize / 2; ++j) {
-      float magnitude = fftMagnitudes[j];
-      // Use a small epsilon to avoid log(0)
-      dbMagnitudes[j] = 20.0f * std::log10(std::max(magnitude, 1e-6f));
+    float magnitude = fftMagnitudes[j];
+    // Use a small epsilon to avoid log(0)
+    dbMagnitudes[j] = 20.0f * std::log10(std::max(magnitude, 1e-6f));
   }
 
   // Find min/max dB for normalization (considering only half of the FFT bins)

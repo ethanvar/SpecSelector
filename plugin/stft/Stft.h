@@ -43,4 +43,5 @@ class Stft {
     void printStftValues();
     void drawSpectorgramWithStft(juce::Image &specImage);
     bool hasData() const;
+    void invertFttSegments();
 };
