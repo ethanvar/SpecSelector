@@ -71,6 +71,11 @@ void Stft::invertFttSegments() {
   std::cout << "Inverting fft segments" << std::endl;
   std::cout << m_currentSampleNum << std::endl;
   for (int i = 0; i < m_currentSampleNum; ++i) {
+    m_forwardFFT.performRealOnlyInverseTransform(
+        m_stft[i].frequencyData.data());
+    m_reconstructedAudio.copyFrom(m_reconstructedAudio.getNumChannels(),
+                                  i * m_fftSize, m_stft[i].frequencyData.data(),
+                                  m_fftSize);
     // std::array<float, fftSize * 2> frequencyData =
     // m_stft[i].frequencyData.data();
   };
