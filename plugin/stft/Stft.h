@@ -27,7 +27,9 @@ class Stft {
     // int m_sampleRate;
     int m_currentSampleNum = 0;
     std::vector<StftSegment> m_stft;
-    float m_maxDbGlobal;
+    float m_maxDBGlobal;
+    juce::AudioBuffer<float> m_reconstructedAudio;
+
 
   public:
     static constexpr auto fftOrder = 9; 
