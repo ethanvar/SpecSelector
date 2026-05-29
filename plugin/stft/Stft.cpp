@@ -73,11 +73,12 @@ void Stft::invertFttSegments() {
   for (int i = 0; i < m_currentSampleNum; ++i) {
     m_forwardFFT.performRealOnlyInverseTransform(
         m_stft[i].frequencyData.data());
+    juce::dsp::WindowingFunction<float> window(
+        fftSize, juce::dsp::WindowingFunction<float>::hamming, true);
+    window.multiplyWithWindowingTable(m_stft[i].frequencyData.data(), fftSize);
     m_reconstructedAudio.copyFrom(m_reconstructedAudio.getNumChannels(),
                                   i * m_fftSize, m_stft[i].frequencyData.data(),
                                   m_fftSize);
-    // std::array<float, fftSize * 2> frequencyData =
-    // m_stft[i].frequencyData.data();
   };
 }
 
@@ -171,7 +172,6 @@ void Stft::drawSpectorgramWithStft(juce::Image &specImage) {
     // Move column forward for next loop to draw into image
     specImage.moveImageSection(0, 0, 1, 0, imageWidth - 1, imageHeight);
   }
-  printStftValues();
 }
 
 void Stft::findMinMax() {
