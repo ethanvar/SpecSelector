@@ -5,7 +5,9 @@
 
 #include <iostream>
 
-Stft::Stft() : m_forwardFFT(m_fftOrder) {
+Stft::Stft()
+    : m_forwardFFT(m_fftOrder),
+      window(fftSize, juce::dsp::WindowingFunction<float>::hamming, false) {
   m_reconstructedAudio.setSize(2, 516);
 };
 
@@ -192,51 +194,72 @@ int &Stft::getNumFrames() { return m_currentSampleNum; }
 
 bool Stft::hasData() const { return !m_stft.empty(); }
 
-// void AudioPluginAudioProcessor::drawNextLineOfSpectrogram(juce::Image
-// &specImage,
-//                                                            std::array<float,
-//                                                            fftSize * 2>
-//                                                            &fourierData, int
-//                                                            sliceWidth)  {
-//     //Add spectogram,  parameter
-//     auto w = specImage.getWidth();
-//     sliceWidth = juce::jlimit(1, w, sliceWidth);
-//     int drawX = w - sliceWidth;
-//     auto imageHeight = specImage.getHeight();
-//     specImage.moveImageSection(0, 0, sliceWidth, 0, w - sliceWidth,
-//     imageHeight);
+void Stft::reset() {
+  count = 0;
+  pos = 0;
+  std::fill(inputFifo.begin(), inputFifo.end(), 0.0f);
+  std::fill(outputFifo.begin(), outputFifo.end(), 0.0f);
+}
 
-//     juce::dsp::WindowingFunction<float> window(fftSize,
-//     juce::dsp::WindowingFunction<float>::hann, true);
-//     window.multiplyWithWindowingTable(fourierData.data(), fftSize);
-//     forwardFFT.performFrequencyOnlyForwardTransform (fourierData.data());
-//     auto maxLevel = juce::FloatVectorOperations::findMinAndMax
-//     (fourierData.data(), fftSize / 2);
+float Stft::processSample(float sample, bool bypassed) {
+  inputFifo[pos] = sample;
+  float outputSample = outputFifo[pos];
+  outputFifo[pos] = 0.0f;
 
-//     juce::Image::BitmapData bitmap {
-//         specImage,
-//         drawX,
-//         0,
-//         sliceWidth,
-//         imageHeight,
-//         juce::Image::BitmapData::writeOnly
-//     };
+  pos += 1;
+  if (pos == m_fftSize) {
+    pos = 0;
+  }
 
-//     if (sliceWidth == 2) {
-//         stft->addLineToStft(fourierData);
-//     }
+  count += 1;
+  if (count == hopSize) {
+    count = 0;
+    processFrame(bypassed);
+  }
 
-//     for (auto y = 1; y < imageHeight; ++y) {
-//         auto skewedProportionY = 1.0f - std::exp (std::log ((float) y /
-//         (float) imageHeight) * 0.6f); auto fftDataIndex = (size_t)
-//         juce::jlimit (0, fftSize / 2, (int) (skewedProportionY * fftSize /
-//         2)); auto level = juce::jmap (fourierData[fftDataIndex], 0.0f,
-//         juce::jmax (maxLevel.getEnd(), 1e-5f), 0.0f, 1.0f); if (sliceWidth >
-//         1) {
-//             for (int x = 0; x < sliceWidth; ++x)
-//                 bitmap.setPixelColour(x, y, mapFFTValueToColour(level));
-//         } else {
-//             bitmap.setPixelColour(0, y, mapFFTValueToColour(level));
-//         }
-//     }
-// }
+  return outputSample;
+}
+
+void Stft::processFrame(bool bypassed) {
+  const float *inputPtr = inputFifo.data();
+  float *fftPtr = m_fftData.data();
+
+  std::memcpy(fftPtr, inputPtr + pos, (m_fftSize - pos) * sizeof(float));
+  if (pos > 0) {
+    std::memcpy(fftPtr + m_fftSize - pos, inputPtr, pos * sizeof(float));
+  }
+
+  window.multiplyWithWindowingTable(fftPtr, m_fftSize);
+
+  if (!bypassed) {
+    m_forwardFFT.performRealOnlyForwardTransform(fftPtr, true);
+    processSpectrum(fftPtr, numBins);
+    m_forwardFFT.performRealOnlyInverseTransform(fftPtr);
+  }
+
+  window.multiplyWithWindowingTable(fftPtr, m_fftSize);
+
+  for (int i = 0; i < m_fftSize; ++i) {
+    fftPtr[i] *= windowCorrection;
+  }
+
+  for (int i = 0; i < pos; ++i) {
+    outputFifo[i] += m_fftData[i + m_fftSize - pos];
+  }
+  for (int i = 0; i < m_fftSize - pos; ++i) {
+    outputFifo[i + pos] += m_fftData[i];
+  }
+}
+
+void Stft::processSpectrum(float *data, int numBins) {
+  auto *cdata = reinterpret_cast<std::complex<float> *>(data);
+
+  for (int i = 0; i < numBins; ++i) {
+    float magnitude = std::abs(cdata[i]);
+    float phase = std::arg(cdata[i]);
+
+    // This is where you'd do your spectral processing...
+
+    cdata[i] = std::polar(magnitude, phase);
+  }
+}
