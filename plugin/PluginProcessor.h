@@ -59,6 +59,7 @@ public:
   double retSamplesPassed();
   double retLoadedSongInSamples();
   Stft stft;
+  Stft fft[2];
 
 private:
   bool repaint = false;

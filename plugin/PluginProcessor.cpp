@@ -70,7 +70,12 @@ void AudioPluginAudioProcessor::prepareToPlay(double sampleRate,
                                               int samplesPerBlock) {
   // Use this method as the place to do any pre-playback
   // initialisation that you need..
-  juce::ignoreUnused(sampleRate, samplesPerBlock);
+  setLatencySamples(stft.getLatencyInSamples());
+
+  fft[0].reset();
+  fft[1].reset();
+
+  // juce::ignoreUnused(sampleRate, samplesPerBlock);
 }
 
 void AudioPluginAudioProcessor::releaseResources() {
@@ -106,9 +111,10 @@ void AudioPluginAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer,
                                              juce::MidiBuffer &midiMessages) {
   // juce::ignoreUnused (midiMessages);
 
-  // juce::ScopedNoDenormals noDenormals;
+  juce::ScopedNoDenormals noDenormals;
   auto totalNumInputChannels = getTotalNumInputChannels();
   auto totalNumOutputChannels = getTotalNumOutputChannels();
+  auto numSamples = buffer.getNumSamples();
 
   // In case we have more outputs than inputs, this code clears any output
   // channels that didn't contain input data, (because these aren't
@@ -130,6 +136,11 @@ void AudioPluginAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer,
   // the samples and the outer loop is handling the channels.
   // Alternatively, you can process the samples with the channels
   // interleaved by keeping the same state.
+  bool bypassed = false;
+
+  float *channelL = buffer.getWritePointer(0);
+  float *channelR = buffer.getWritePointer(1);
+
   for (int channel = 0; channel < totalNumInputChannels; ++channel) {
     auto *channelData = buffer.getWritePointer(channel);
     juce::ignoreUnused(channelData);
@@ -138,8 +149,16 @@ void AudioPluginAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer,
           currentPosition.getTimeInSamples() > 356352) {
         channelData[sample] *= noteOnVel;
       }
-    }
 
+      float sampleL = channelL[sample];
+      float sampleR = channelR[sample];
+
+      sampleL = fft[0].processSample(sampleL, bypassed);
+      sampleR = fft[1].processSample(sampleR, bypassed);
+
+      channelL[sample] = sampleL;
+      channelR[sample] = sampleR;
+    }
     // ..do something to the data...
   }
 }

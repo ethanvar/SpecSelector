@@ -263,3 +263,5 @@ void Stft::processSpectrum(float *data, int numBins) {
     cdata[i] = std::polar(magnitude, phase);
   }
 }
+
+int Stft::getLatencyInSamples() const { return m_fftSize; }

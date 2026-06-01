@@ -58,4 +58,5 @@ public:
   float processSample(float sample, bool bypassed);
   void processSpectrum(float *data, int numBins);
   void processFrame(bool bypassed);
+  int getLatencyInSamples() const;
 };
