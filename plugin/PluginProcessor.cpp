@@ -1,5 +1,6 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+#include "juce_audio_processors/juce_audio_processors.h"
 
 //==============================================================================
 AudioPluginAudioProcessor::AudioPluginAudioProcessor()
@@ -141,26 +142,25 @@ void AudioPluginAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer,
   float *channelL = buffer.getWritePointer(0);
   float *channelR = buffer.getWritePointer(1);
 
-  for (int channel = 0; channel < totalNumInputChannels; ++channel) {
-    auto *channelData = buffer.getWritePointer(channel);
-    juce::ignoreUnused(channelData);
-    for (int sample = 0; sample < buffer.getNumSamples(); ++sample) {
-      if (currentPosition.getTimeInSamples() < 601600 &&
-          currentPosition.getTimeInSamples() > 356352) {
-        channelData[sample] *= noteOnVel;
-      }
+  // for (int channel = 0; channel < totalNumInputChannels; ++channel) {
+  //   auto *channelData = buffer.getWritePointer(channel);
+  //   juce::ignoreUnused(channelData);
+  for (int sample = 0; sample < buffer.getNumSamples(); ++sample) {
+    // if (currentPosition.getTimeInSamples() < 601600 &&
+    //     currentPosition.getTimeInSamples() > 356352) {
+    float sampleL = channelL[sample];
+    float sampleR = channelR[sample];
 
-      float sampleL = channelL[sample];
-      float sampleR = channelR[sample];
+    sampleL = fft[0].processSample(sampleL, bypassed);
+    sampleR = fft[1].processSample(sampleR, bypassed);
 
-      sampleL = fft[0].processSample(sampleL, bypassed);
-      sampleR = fft[1].processSample(sampleR, bypassed);
-
-      channelL[sample] = sampleL;
-      channelR[sample] = sampleR;
-    }
-    // ..do something to the data...
+    channelL[sample] = sampleL;
+    channelR[sample] = sampleR;
+    // channelData[sample] *= noteOnVel;
+    //}
   }
+  // ..do something to the data...
+  //}
 }
 
 void AudioPluginAudioProcessor::loadFile(const juce::File &audioFile) {

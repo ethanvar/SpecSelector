@@ -7,13 +7,11 @@
 
 Stft::Stft()
     : m_forwardFFT(m_fftOrder),
-      window(fftSize, juce::dsp::WindowingFunction<float>::hamming, false) {
+      window(fftSize, juce::dsp::WindowingFunction<float>::hann, false) {
   m_reconstructedAudio.setSize(2, 516);
 };
 
-Stft::~Stft() {
-
-};
+Stft::~Stft() {};
 
 void Stft::processEntireFile(juce::AudioFormatReader *reader) {
   m_stft.clear();
@@ -204,6 +202,7 @@ void Stft::reset() {
 float Stft::processSample(float sample, bool bypassed) {
   inputFifo[pos] = sample;
   float outputSample = outputFifo[pos];
+  // float outputSample = 0;
   outputFifo[pos] = 0.0f;
 
   pos += 1;
@@ -251,15 +250,19 @@ void Stft::processFrame(bool bypassed) {
   }
 }
 
+void Stft::PingStftCpp() { std::cout << "PingStftCpp!!!" << std::endl; }
+
 void Stft::processSpectrum(float *data, int numBins) {
-  auto *cdata = reinterpret_cast<std::complex<float> *>(data);
+  std::complex<float> *cdata = reinterpret_cast<std::complex<float> *>(data);
 
   for (int i = 0; i < numBins; ++i) {
     float magnitude = std::abs(cdata[i]);
     float phase = std::arg(cdata[i]);
 
-    // This is where you'd do your spectral processing...
-
+    // This is where you'd do your spectral processing..
+    //
+    magnitude *= velocity;
+    // phase *= float(i);
     cdata[i] = std::polar(magnitude, phase);
   }
 }
