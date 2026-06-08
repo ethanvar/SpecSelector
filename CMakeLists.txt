@@ -37,6 +37,8 @@ target_sources(SpecSelector
     plugin/views/Mediator.h
     plugin/stft/Stft.cpp
     plugin/stft/Stft.h
+    plugin/stft/StftBuffers.cpp
+    plugin/stft/StftBuffers.h
     plugin/views/ProgressMask.cpp
     plugin/views/ProgressMask.h
     plugin/views/StftDisplay.cpp

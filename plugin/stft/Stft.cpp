@@ -1,4 +1,5 @@
 #include "Stft.h"
+#include "StftBuffers.h"
 #include "juce_audio_basics/juce_audio_basics.h"
 #include "juce_audio_formats/juce_audio_formats.h"
 #include "juce_graphics/juce_graphics.h"
@@ -7,7 +8,9 @@
 
 Stft::Stft()
     : m_forwardFFT(m_fftOrder),
-      window(fftSize, juce::dsp::WindowingFunction<float>::hann, false) {
+      window(fftSize, juce::dsp::WindowingFunction<float>::hann, false),
+      fftBuffers{StftBuffers(window, m_forwardFFT),
+                 StftBuffers(window, m_forwardFFT)} {
   m_reconstructedAudio.setSize(2, 516);
 };
 
@@ -191,80 +194,5 @@ void Stft::findMinMax() {
 int &Stft::getNumFrames() { return m_currentSampleNum; }
 
 bool Stft::hasData() const { return !m_stft.empty(); }
-
-void Stft::reset() {
-  count = 0;
-  pos = 0;
-  std::fill(inputFifo.begin(), inputFifo.end(), 0.0f);
-  std::fill(outputFifo.begin(), outputFifo.end(), 0.0f);
-}
-
-float Stft::processSample(float sample, bool bypassed) {
-  inputFifo[pos] = sample;
-  float outputSample = outputFifo[pos];
-  // float outputSample = 0;
-  outputFifo[pos] = 0.0f;
-
-  pos += 1;
-  if (pos == m_fftSize) {
-    pos = 0;
-  }
-
-  count += 1;
-  if (count == hopSize) {
-    count = 0;
-    processFrame(bypassed);
-  }
-
-  return outputSample;
-}
-
-void Stft::processFrame(bool bypassed) {
-  const float *inputPtr = inputFifo.data();
-  float *fftPtr = m_fftData.data();
-
-  std::memcpy(fftPtr, inputPtr + pos, (m_fftSize - pos) * sizeof(float));
-  if (pos > 0) {
-    std::memcpy(fftPtr + m_fftSize - pos, inputPtr, pos * sizeof(float));
-  }
-
-  window.multiplyWithWindowingTable(fftPtr, m_fftSize);
-
-  if (!bypassed) {
-    m_forwardFFT.performRealOnlyForwardTransform(fftPtr, true);
-    processSpectrum(fftPtr, numBins);
-    m_forwardFFT.performRealOnlyInverseTransform(fftPtr);
-  }
-
-  window.multiplyWithWindowingTable(fftPtr, m_fftSize);
-
-  for (int i = 0; i < m_fftSize; ++i) {
-    fftPtr[i] *= windowCorrection;
-  }
-
-  for (int i = 0; i < pos; ++i) {
-    outputFifo[i] += m_fftData[i + m_fftSize - pos];
-  }
-  for (int i = 0; i < m_fftSize - pos; ++i) {
-    outputFifo[i + pos] += m_fftData[i];
-  }
-}
-
-void Stft::PingStftCpp() { std::cout << "PingStftCpp!!!" << std::endl; }
-
-void Stft::processSpectrum(float *data, int numBins) {
-  std::complex<float> *cdata = reinterpret_cast<std::complex<float> *>(data);
-
-  for (int i = 0; i < numBins; ++i) {
-    float magnitude = std::abs(cdata[i]);
-    float phase = std::arg(cdata[i]);
-
-    // This is where you'd do your spectral processing..
-    //
-    magnitude *= velocity;
-    // phase *= float(i);
-    cdata[i] = std::polar(magnitude, phase);
-  }
-}
 
 int Stft::getLatencyInSamples() const { return m_fftSize; }

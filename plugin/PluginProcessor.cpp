@@ -73,8 +73,8 @@ void AudioPluginAudioProcessor::prepareToPlay(double sampleRate,
   // initialisation that you need..
   setLatencySamples(stft.getLatencyInSamples());
 
-  fft[0].reset();
-  fft[1].reset();
+  stft.fftBuffers[0].reset();
+  stft.fftBuffers[1].reset();
 
   // juce::ignoreUnused(sampleRate, samplesPerBlock);
 }
@@ -151,13 +151,11 @@ void AudioPluginAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer,
     float sampleL = channelL[sample];
     float sampleR = channelR[sample];
 
-    sampleL = fft[0].processSample(sampleL, bypassed);
-    sampleR = fft[1].processSample(sampleR, bypassed);
+    sampleL = stft.fftBuffers[0].processSample(sampleL, bypassed);
+    sampleR = stft.fftBuffers[1].processSample(sampleR, bypassed);
 
     channelL[sample] = sampleL;
     channelR[sample] = sampleR;
-    // channelData[sample] *= noteOnVel;
-    //}
   }
   // ..do something to the data...
   //}

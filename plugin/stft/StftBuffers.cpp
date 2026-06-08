@@ -35,7 +35,7 @@ float StftBuffers::processSample(float sample, bool bypassed) {
 
 void StftBuffers::processFrame(bool bypassed) {
   const float *inputPtr = inputFifo.data();
-  float *fftPtr = m_fftData.data();
+  float *fftPtr = fftData.data();
 
   std::memcpy(fftPtr, inputPtr + pos, (fftSize - pos) * sizeof(float));
   if (pos > 0) {
@@ -57,10 +57,10 @@ void StftBuffers::processFrame(bool bypassed) {
   }
 
   for (int i = 0; i < pos; ++i) {
-    outputFifo[i] += m_fftData[i + fftSize - pos];
+    outputFifo[i] += fftData[i + fftSize - pos];
   }
   for (int i = 0; i < fftSize - pos; ++i) {
-    outputFifo[i + pos] += m_fftData[i];
+    outputFifo[i + pos] += fftData[i];
   }
 }
 

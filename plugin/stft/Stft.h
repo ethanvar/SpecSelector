@@ -19,20 +19,7 @@ private:
   juce::dsp::WindowingFunction<float> window;
   static constexpr auto m_fftOrder = 9;
   static constexpr auto m_fftSize = 1 << m_fftOrder;
-  std::array<float, m_fftSize * 2> m_fftData;
   int m_fifoIndex = 0;
-
-  static constexpr int numBins = m_fftSize / 2 + 1; // 513 bins
-  static constexpr int overlap = 4;                 // 75% overlap
-  static constexpr int hopSize = m_fftSize / overlap;
-  static constexpr float windowCorrection = 22.0f / 3.0f;
-
-  int count = 0;
-  int pos = 0;
-  std::array<float, m_fftSize> inputFifo;
-  std::array<float, m_fftSize> outputFifo;
-  // int m_hopSize;
-  // int m_sampleRate;
   int m_currentSampleNum = 0;
   std::vector<StftSegment> m_stft;
   float m_maxDBGlobal;
@@ -55,11 +42,7 @@ public:
   void drawSpectorgramWithStft(juce::Image &specImage);
   bool hasData() const;
   void invertFttSegments();
-  void PingStftCpp();
+  StftBuffers fftBuffers[2];
 
-  void reset();
-  float processSample(float sample, bool bypassed);
-  void processSpectrum(float *data, int numBins);
-  void processFrame(bool bypassed);
   int getLatencyInSamples() const;
 };

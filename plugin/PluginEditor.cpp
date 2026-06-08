@@ -100,11 +100,11 @@ void AudioPluginAudioProcessorEditor::resized() {
 }
 
 void AudioPluginAudioProcessorEditor::sliderValueChanged(juce::Slider *slider) {
-  processorRef.fft[0].PingStftCpp();
-  // Make sure you fix the extra velocities here
+  // processorRef.fft[0].PingStftCpp();
+  //  Make sure you fix the extra velocities here
   processorRef.noteOnVel = float(midiVolume.getValue() / double(100));
-  processorRef.fft[0].velocity = float(midiVolume.getValue() / double(100));
-  processorRef.fft[1].velocity = float(midiVolume.getValue() / double(100));
+  // processorRef.fft[0].velocity = float(midiVolume.getValue() / double(100));
+  // processorRef.fft[1].velocity = float(midiVolume.getValue() / double(100));
 }
 
 void AudioPluginAudioProcessorEditor::timerCallback() {

@@ -1,16 +1,14 @@
 #pragma once
+#include <array>
 #include <juce_dsp/juce_dsp.h>
 
-#include <array>
 class StftBuffers {
 private:
   const static constexpr int fftSize = 1 << 9;
-  std::array<float, fftSize * 2> m_fftData;
-  std::array<float, fftSize> inputfifo;
-  std::array<float, fftSize> outputfifo;
+  std::array<float, fftSize * 2> fftData;
 
-  static constexpr int numBins = fftSize / 2 + 1; // 513 bins
-  static constexpr int overlap = 4;               // 75% overlap
+  static constexpr int numBins = fftSize / 2 + 1;
+  static constexpr int overlap = 4;
   static constexpr int hopSize = fftSize / overlap;
   static constexpr float windowCorrection = 22.0f / 3.0f;
 
