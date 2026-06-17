@@ -29,7 +29,7 @@ public:
   static constexpr auto fftOrder = 9;
   static constexpr auto fftSize = 1 << fftOrder;
 
-  Stft();
+  Stft(DialInputs &inputs);
   ~Stft();
 
   float velocity = 50;

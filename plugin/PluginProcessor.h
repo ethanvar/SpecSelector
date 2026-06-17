@@ -60,8 +60,8 @@ public:
   double retLoadedSongInSeconds();
   double retSamplesPassed();
   double retLoadedSongInSamples();
-  Stft stft;
   DialInputs dialInputs;
+  Stft stft = Stft(dialInputs);
   // Stft fft[2];
 
 private:

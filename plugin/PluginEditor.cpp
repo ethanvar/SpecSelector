@@ -30,9 +30,10 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(
   midiPhase.setTextBoxStyle(juce::Slider::NoTextBox, false, 90, 0);
   midiPhase.setPopupDisplayEnabled(true, false, this);
   midiPhase.setTextValueSuffix(" Phase");
-  midiPhase.setValue(50.0);
+  midiPhase.setValue(1.0);
   addAndMakeVisible(&midiPhase);
-  midiVolume.addListener(this);
+  midiPhase.addListener(this);
+
   addAndMakeVisible(&checkTime);
   checkTime.setButtonText("Check Time");
   checkTime.onClick = [this] { checkTimeClicked(); };
@@ -112,7 +113,13 @@ void AudioPluginAudioProcessorEditor::resized() {
 void AudioPluginAudioProcessorEditor::sliderValueChanged(juce::Slider *slider) {
   // processorRef.fft[0].PingStftCpp();
   //  Make sure you fix the extra velocities here
-  processorRef.noteOnVel = float(midiVolume.getValue() / double(100));
+  if (slider == &midiPhase) {
+    processorRef.dialInputs.phase = float(midiPhase.getValue());
+  };
+  if (slider == &midiVolume) {
+    processorRef.dialInputs.magnitude = float(midiVolume.getValue());
+  };
+  // processorRef.noteOnVel = float(midiVolume.getValue() / double(100));
 
   // processorRef.fft[0].velocity = float(midiVolume.getValue() / double(100));
   // processorRef.fft[1].velocity = float(midiVolume.getValue() / double(100));
