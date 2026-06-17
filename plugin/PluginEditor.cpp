@@ -24,6 +24,15 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(
   midiVolume.setValue(50.0);
   addAndMakeVisible(&midiVolume);
   midiVolume.addListener(this);
+
+  midiPhase.setSliderStyle(juce::Slider::LinearBarVertical);
+  midiPhase.setRange(0.0, 127.0, 1.0);
+  midiPhase.setTextBoxStyle(juce::Slider::NoTextBox, false, 90, 0);
+  midiPhase.setPopupDisplayEnabled(true, false, this);
+  midiPhase.setTextValueSuffix(" Phase");
+  midiPhase.setValue(50.0);
+  addAndMakeVisible(&midiPhase);
+  midiVolume.addListener(this);
   addAndMakeVisible(&checkTime);
   checkTime.setButtonText("Check Time");
   checkTime.onClick = [this] { checkTimeClicked(); };
@@ -89,6 +98,7 @@ void AudioPluginAudioProcessorEditor::resized() {
   spectrogramBounds = getLocalBounds().withSizeKeepingCentre(
       getWidth() * 50 / 100, getHeight() * 50 / 100);
   midiVolume.setBounds(40, 30, 20, getHeight() - 60);
+  midiPhase.setBounds(70, 30, 20, getHeight() - 60);
   openButton.setBounds((getWidth() / 2) - 40, 40, 80, 30);
   inverseFft.setBounds((getWidth() / 2) - 40, 120, 80, 30);
   checkTime.setBounds((getWidth() / 2) - 40, 80, 80, 30);
@@ -103,6 +113,7 @@ void AudioPluginAudioProcessorEditor::sliderValueChanged(juce::Slider *slider) {
   // processorRef.fft[0].PingStftCpp();
   //  Make sure you fix the extra velocities here
   processorRef.noteOnVel = float(midiVolume.getValue() / double(100));
+
   // processorRef.fft[0].velocity = float(midiVolume.getValue() / double(100));
   // processorRef.fft[1].velocity = float(midiVolume.getValue() / double(100));
 }

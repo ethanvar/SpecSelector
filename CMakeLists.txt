@@ -45,6 +45,7 @@ target_sources(SpecSelector
     plugin/views/StftDisplay.h
     plugin/events/EventBus.cpp
     plugin/events/EventBus.h
+    plugin/interactable/DialInputs.h
 )
 
 target_compile_definitions(SpecSelector

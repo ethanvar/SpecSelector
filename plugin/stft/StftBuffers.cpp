@@ -1,8 +1,8 @@
 #include "StftBuffers.h"
 
 StftBuffers::StftBuffers(const juce::dsp::WindowingFunction<float> &w,
-                         const juce::dsp::FFT &f)
-    : window(w), forwardFFT(f) {}
+                         const juce::dsp::FFT &f, DialInputs &inputs)
+    : window(w), forwardFFT(f), inputsRef(inputs) {}
 
 StftBuffers::~StftBuffers() {}
 
@@ -73,7 +73,7 @@ void StftBuffers::processSpectrum(float *data, int numBins) {
 
     // This is where you'd do your spectral processing..
     //
-    // magnitude *= velocity;
+    magnitude *= inputsRef.magnitude;
     // phase *= float(i);
     cdata[i] = std::polar(magnitude, phase);
   }

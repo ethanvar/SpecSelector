@@ -31,6 +31,7 @@ private:
   // StftDisplay stftDisplay;
   void sliderValueChanged(juce::Slider *slider) override;
   juce::Slider midiVolume;
+  juce::Slider midiPhase;
   juce::TextButton checkTime;
   juce::TextButton openButton;
   juce::TextButton inverseFft;

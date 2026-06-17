@@ -1,4 +1,5 @@
 #pragma once
+#include "../interactable/DialInputs.h"
 #include <array>
 #include <juce_dsp/juce_dsp.h>
 
@@ -18,10 +19,11 @@ private:
   int pos = 0;
   std::array<float, fftSize> inputFifo;
   std::array<float, fftSize> outputFifo;
+  DialInputs &inputsRef;
 
 public:
   StftBuffers(const juce::dsp::WindowingFunction<float> &w,
-              const juce::dsp::FFT &f);
+              const juce::dsp::FFT &f, DialInputs &inputs);
   ~StftBuffers();
   void reset();
   float processSample(float sample, bool bypassed);

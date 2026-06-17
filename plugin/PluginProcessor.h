@@ -1,10 +1,12 @@
 #pragma once
 
+// #include "interactable/DialInputs.h"
 #include "stft/Stft.h"
 #include <juce_audio_devices/juce_audio_devices.h>
 #include <juce_audio_formats/juce_audio_formats.h>
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <juce_audio_utils/juce_audio_utils.h>
+#include <memory>
 
 //==============================================================================
 class AudioPluginAudioProcessor final : public juce::AudioProcessor {
@@ -59,6 +61,7 @@ public:
   double retSamplesPassed();
   double retLoadedSongInSamples();
   Stft stft;
+  DialInputs dialInputs;
   // Stft fft[2];
 
 private:
