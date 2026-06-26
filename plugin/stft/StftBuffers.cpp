@@ -73,7 +73,10 @@ void StftBuffers::processSpectrum(float *data, int numBins) {
     // std::cout << inputsRef.magnitude << std::endl;
     //  This is where you'd do your spectral processing..
     //
-    magnitude *= (float(0.01) * inputsRef.magnitude);
+    if (i > 50) {
+      magnitude *= (float(0.01) * inputsRef.magnitude);
+    }
+    // magnitude *= (float(0.01) * inputsRef.magnitude);
     phase *= inputsRef.phase;
     cdata[i] = std::polar(magnitude, phase);
   }

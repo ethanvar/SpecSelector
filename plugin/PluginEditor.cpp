@@ -138,6 +138,6 @@ void AudioPluginAudioProcessorEditor::timerCallback() {
     newBounds.setHeight(newBounds.getHeight() * 50 / 100);
     mediator.setBounds(newBounds);
     mediator.resized();
-    mediator.updatetStftDisplay();
+    mediator.initializeStftDisplay();
   }
 }

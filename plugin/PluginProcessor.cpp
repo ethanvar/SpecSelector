@@ -175,7 +175,6 @@ void AudioPluginAudioProcessor::loadFile(const juce::File &audioFile) {
                                 reader->sampleRate);
       std::cout << "Total length in samples: "
                 << transportSource.getTotalLength() << std::endl;
-      std::cout << "Please dont seg fault" << std::endl;
       stft.processEntireFile(reader);
       // stft.printStftValues();
       // stft.drawSpectorgramWithStft(specImage);

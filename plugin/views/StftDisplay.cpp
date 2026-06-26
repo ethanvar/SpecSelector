@@ -2,28 +2,33 @@
 #include "../PluginProcessor.h"
 #include "juce_graphics/juce_graphics.h"
 
-StftDisplay::StftDisplay(AudioPluginAudioProcessor& p) : processorRef(p), spectrogram(juce::Image::RGB, getLocalBounds().getWidth(), getLocalBounds().getHeight(), true)
-{
+StftDisplay::StftDisplay(AudioPluginAudioProcessor &p)
+    : processorRef(p),
+      spectrogram(juce::Image::RGB, getLocalBounds().getWidth(),
+                  getLocalBounds().getHeight(), true) {
   displayWidth = getLocalBounds().getWidth();
   setInterceptsMouseClicks(false, false);
   setBufferedToImage(true);
 }
 
-StftDisplay::~StftDisplay()
-{
-}
+StftDisplay::~StftDisplay() {}
 
-void StftDisplay::updateSpectrogram()
-{
+void StftDisplay::initializeSpectrogram() {
   processorRef.stft.drawSpectorgramWithStft(spectrogram);
   repaint();
 }
 
-void StftDisplay::paint(juce::Graphics& g)
-{
+void StftDisplay::updateSpectrogram(PixelUpdate &update) {
+  processorRef.stft.drawOntoSpectrogram(update.pixelX, update.pixelY,
+                                        spectrogram);
+  repaint();
+}
+
+void StftDisplay::paint(juce::Graphics &g) {
   auto bounds = getLocalBounds();
 
-  //std::cout << bounds.getHeight() << "And y: " << bounds.getWidth() << std::endl;
+  // std::cout << bounds.getHeight() << "And y: " << bounds.getWidth() <<
+  // std::endl;
 
   if (bounds.isEmpty()) {
     return;
@@ -35,16 +40,14 @@ void StftDisplay::paint(juce::Graphics& g)
   }
 }
 
-void StftDisplay::checking()
-{
-  std::cout << "CHEKCKED" << std::endl;
-}
+void StftDisplay::checking() { std::cout << "CHEKCKED" << std::endl; }
 
-void StftDisplay::resized()
-{
+void StftDisplay::resized() {
   auto bounds = getLocalBounds();
 
-  if (bounds.isEmpty()) return;
+  if (bounds.isEmpty())
+    return;
 
-  spectrogram = juce::Image(juce::Image::RGB, bounds.getWidth(), bounds.getHeight(), true);
+  spectrogram = juce::Image(juce::Image::RGB, bounds.getWidth(),
+                            bounds.getHeight(), true);
 }

@@ -12,7 +12,7 @@ public:
 
   void resized() override;
   void paint(juce::Graphics &g) override;
-  void updatetStftDisplay();
+  void initializeStftDisplay();
   void updateMaskProgress(double progress, double songLength);
   void mouseDown(const juce::MouseEvent &event) override;
   void mouseDrag(const juce::MouseEvent &event) override;

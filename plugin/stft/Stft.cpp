@@ -101,8 +101,8 @@ void Stft::printStftValues() {
 void Stft::drawSpectorgramWithStft(juce::Image &specImage) {
   const int imageWidth = specImage.getWidth();
   const int imageHeight = specImage.getHeight();
+  std::cout << "image height" << imageHeight << std::endl;
   const int numFrames = static_cast<int>(m_stft.size());
-  std::cout << "Current sample number: " << m_currentSampleNum << std::endl;
   // Loop over each FFT frame
   for (int i = 0; i < numFrames; ++i) {
     // Get the FFT magnitudes for the current frame
@@ -138,14 +138,14 @@ void Stft::drawSpectorgramWithStft(juce::Image &specImage) {
     // Draw frequency bins bottom top (optionally skew Y axis to emphasize low
     // frequencies)
     for (int y = 0; y < imageHeight; ++y) {
-      // Map pixel Y normalized frequency bin (0..1)
+      // Map pixel Y normalized frequency bin (0..1spec)
       float skewedProportionY =
           1.0f - std::exp(std::log((float)y / (float)imageHeight) * 0.2f);
 
       // Map to FFT index
-      int fftIndex =
-          juce::jlimit(0, m_fftSize / 2,
-                       static_cast<int>(skewedProportionY * (m_fftSize / 2)));
+      int fftIndex = juce::jlimit(
+          0, m_fftSize / 2,
+          static_cast<int>(skewedProportionY * (float(m_fftSize) / 2)));
 
       // Get the dB value for this frequency bin
       float dbValue = dbMagnitudes[fftIndex];
@@ -172,10 +172,22 @@ void Stft::drawSpectorgramWithStft(juce::Image &specImage) {
       bitmap.setPixelColour(0, y, colour);
       //}
     }
+
     // Move column forward for next loop to draw into image
     specImage.moveImageSection(0, 0, 1, 0, imageWidth - 1, imageHeight);
   }
 }
+
+void Stft::drawOntoSpectrogram(int mouseEventX, int mouseEventY,
+                               juce::Image &specImage) {
+
+  for (int i = 0; i < 20; i++) {
+    specImage.setPixelAt(mouseEventX + i, mouseEventY + i,
+                         juce::Colour(100, 0, 0));
+    specImage.setPixelAt(mouseEventX - i, mouseEventY - i,
+                         juce::Colour(100, 0, 0));
+  }
+};
 
 void Stft::findMinMax() {
   const int numFrames = static_cast<int>(m_stft.size());

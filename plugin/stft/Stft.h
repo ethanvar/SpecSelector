@@ -40,6 +40,8 @@ public:
   void addLineToStft(std::array<float, StftSegment::fftSize * 2> &fourierData);
   void printStftValues();
   void drawSpectorgramWithStft(juce::Image &specImage);
+  void drawOntoSpectrogram(int mouseEventX, int mouseEventY,
+                           juce::Image &specImage);
   bool hasData() const;
   void invertFttSegments();
   StftBuffers fftBuffers[2];
