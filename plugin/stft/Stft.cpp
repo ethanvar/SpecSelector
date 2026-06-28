@@ -207,6 +207,7 @@ void Stft::updateSegmentsPassedInTrack(double samplesPassedInTrack,
                                        double latencySamples) {
   double samplesPassed = samplesPassedInTrack + latencySamples;
   if (samplesPassed != 0 && std::fmod(samplesPassed, double(fftSize)) == 0) {
+    std::cout << "samplesPassed: " << samplesPassed << std::endl;
     segmentsPassed = samplesPassed / fftSize;
   }
 }

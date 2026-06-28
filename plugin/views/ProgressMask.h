@@ -10,7 +10,6 @@ public:
   ~ProgressMask();
 
   void paint(juce::Graphics &g) override;
-  void updateProgress(double progress, double songLength);
   void resized() override;
   void setFftSize(int size);
   void setNumFrames(int &frames);

@@ -48,13 +48,6 @@ void Mediator::initializeStftDisplay() {
   repaint();
 }
 
-void Mediator::updateMaskProgress(double progress, double songLength) {
-  if (std::abs(m_mask.getCurrentProgress() - progress) > 0.01) {
-    m_mask.updateProgress(progress, songLength);
-    repaint();
-  }
-}
-
 void Mediator::updateMaskProgressWithSegments(int segmentsPassed) {
   m_mask.updateProgressWithSegments(segmentsPassed);
   repaint();

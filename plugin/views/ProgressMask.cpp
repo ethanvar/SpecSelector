@@ -5,16 +5,7 @@ ProgressMask::ProgressMask() {}
 
 ProgressMask::~ProgressMask() {}
 
-void ProgressMask::updateProgress(double progress, double songLength) {
-  if (std::abs(m_currentProgress - progress) > 0.01) {
-    m_currentProgress = progress;
-    m_currentSongLength = songLength;
-    repaint();
-  }
-}
-
 void ProgressMask::updateProgressWithSegments(int segmentsPassed) {
-  std::cout << "segmentsPassed: " << segmentsPassed << std::endl;
   m_stftSegmentsPassed = segmentsPassed;
   repaint();
 }

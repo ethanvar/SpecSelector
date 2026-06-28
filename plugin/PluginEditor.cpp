@@ -129,12 +129,13 @@ void AudioPluginAudioProcessorEditor::timerCallback() {
   double samplesPassed =
       processorRef.retSamplesPassed() + processorRef.getLatencySamples();
 
-  if (samplesPassed != 0 &&
-      std::fmod(samplesPassed, double(processorRef.stft.fftSize)) == 0) {
-    double segmentsPassed = samplesPassed / processorRef.stft.fftSize;
-    // mediator.updateMaskProgressWithSegments(processorRef.stft.segmentsPassed);
-    mediator.updateMaskProgressWithSegments(segmentsPassed);
-  }
+  // if (samplesPassed != 0 &&
+  //   std::fmod(samplesPassed, double(processorRef.stft.fftSize)) == 0) {
+  //  double segmentsPassed = samplesPassed / processorRef.stft.fftSize;
+  //
+  mediator.updateMaskProgressWithSegments(processorRef.stft.segmentsPassed);
+  // mediator.updateMaskProgressWithSegments(segmentsPassed);
+  //}
 
   if (processorRef.getRepaint() == true) {
     auto newBounds = getBounds();
