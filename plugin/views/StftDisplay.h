@@ -20,6 +20,7 @@ public:
   void checking();
   void initializeSpectrogram();
   void updateSpectrogram(PixelUpdate &update);
+  void undoSpectrogramAction();
   juce::Image spectrogram;
 
 private:

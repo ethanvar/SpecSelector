@@ -24,6 +24,8 @@ void StftDisplay::updateSpectrogram(PixelUpdate &update) {
   repaint();
 }
 
+void StftDisplay::undoSpectrogramAction() {}
+
 void StftDisplay::paint(juce::Graphics &g) {
   auto bounds = getLocalBounds();
 

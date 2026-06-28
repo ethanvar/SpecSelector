@@ -148,6 +148,8 @@ void AudioPluginAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer,
   for (int sample = 0; sample < buffer.getNumSamples(); ++sample) {
     // if (currentPosition.getTimeInSamples() < 601600 &&
     //     currentPosition.getTimeInSamples() > 356352) {
+    stft.updateSegmentsPassedInTrack(retSamplesPassed(),
+                                     stft.getLatencyInSamples());
     float sampleL = channelL[sample];
     float sampleR = channelR[sample];
 

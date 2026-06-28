@@ -33,6 +33,7 @@ public:
   ~Stft();
 
   float velocity = 50;
+  int segmentsPassed = 0;
 
   int &getNumFrames();
   void processEntireFile(juce::AudioFormatReader *reader);
@@ -46,5 +47,6 @@ public:
   void invertFttSegments();
   StftBuffers fftBuffers[2];
 
+  void updateSegmentsPassedInTrack(double samplesPassed, double latencySamples);
   int getLatencyInSamples() const;
 };

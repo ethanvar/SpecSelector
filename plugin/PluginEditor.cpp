@@ -111,7 +111,7 @@ void AudioPluginAudioProcessorEditor::resized() {
 }
 
 void AudioPluginAudioProcessorEditor::sliderValueChanged(juce::Slider *slider) {
-  // processorRef.fft[0].PingStftCpp();
+  // processorRef.fft[0].PingStftCpp()
   //  Make sure you fix the extra velocities here
   if (slider == &midiPhase) {
     processorRef.dialInputs.phase = float(midiPhase.getValue());
@@ -126,11 +126,15 @@ void AudioPluginAudioProcessorEditor::sliderValueChanged(juce::Slider *slider) {
 }
 
 void AudioPluginAudioProcessorEditor::timerCallback() {
-  double latencySeconds =
-      processorRef.getLatencySamples() / processorRef.getSampleRate();
-  double totalSeconds = processorRef.retLoadedSongInSeconds();
-  double currentSeconds = processorRef.retTrackTimeInSeconds() + latencySeconds;
-  mediator.updateMaskProgress(currentSeconds, totalSeconds);
+  double samplesPassed =
+      processorRef.retSamplesPassed() + processorRef.getLatencySamples();
+
+  if (samplesPassed != 0 &&
+      std::fmod(samplesPassed, double(processorRef.stft.fftSize)) == 0) {
+    double segmentsPassed = samplesPassed / processorRef.stft.fftSize;
+    // mediator.updateMaskProgressWithSegments(processorRef.stft.segmentsPassed);
+    mediator.updateMaskProgressWithSegments(segmentsPassed);
+  }
 
   if (processorRef.getRepaint() == true) {
     auto newBounds = getBounds();

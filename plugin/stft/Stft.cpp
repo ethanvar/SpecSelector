@@ -203,6 +203,14 @@ void Stft::findMinMax() {
   m_maxDBGlobal = maxNum;
 }
 
+void Stft::updateSegmentsPassedInTrack(double samplesPassedInTrack,
+                                       double latencySamples) {
+  double samplesPassed = samplesPassedInTrack + latencySamples;
+  if (samplesPassed != 0 && std::fmod(samplesPassed, double(fftSize)) == 0) {
+    segmentsPassed = samplesPassed / fftSize;
+  }
+}
+
 int &Stft::getNumFrames() { return m_currentSampleNum; }
 
 bool Stft::hasData() const { return !m_stft.empty(); }
