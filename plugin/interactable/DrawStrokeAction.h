@@ -40,8 +40,6 @@ public:
 
   bool undo() override;
 
-  int getSizeInUnits() override;
-
   juce::Image returnActionImage();
 
 private:

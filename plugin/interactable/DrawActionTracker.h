@@ -7,7 +7,7 @@ private:
 
 public:
   void AddMemento(std::unique_ptr<DrawStrokeAction> memento) {
-    mementos.push_back(memento);
+    mementos.push_back(std::move(memento));
   }
 
   const DrawStrokeAction &getAction(int index) const {
