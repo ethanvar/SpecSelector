@@ -48,7 +48,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(
   playButton.setButtonText("Play Inverse");
   playButton.onClick = [this] { togglePlayInverseFft(); };
   addAndMakeVisible(&pauseButton);
-  pauseButton.setButtonText("Pause Inverse");
+  pauseButton.setButtonText("Undo");
   pauseButton.onClick = [this] { togglePlayInverseFft(); };
 }
 
@@ -88,6 +88,7 @@ void AudioPluginAudioProcessorEditor::inverseFttButton() {
 }
 
 void AudioPluginAudioProcessorEditor::togglePlayInverseFft() {
+  mediator.undoLastStroke();
   std::cout << "togglePlayInverseFft clicked" << std::endl;
 }
 

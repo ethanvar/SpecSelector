@@ -21,6 +21,7 @@ public:
   void initializeSpectrogram();
   void updateSpectrogram(PixelUpdate &update);
   void undoSpectrogramAction();
+  void createSpectrogram(int w, int h);
   juce::Image spectrogram;
 
 private:

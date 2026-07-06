@@ -1,4 +1,5 @@
 #include "Stft.h"
+#include "../interactable/DrawStrokeAction.h"
 #include "StftBuffers.h"
 #include "juce_audio_basics/juce_audio_basics.h"
 #include "juce_audio_formats/juce_audio_formats.h"
@@ -189,6 +190,16 @@ void Stft::drawOntoSpectrogram(int mouseEventX, int mouseEventY,
   }
 };
 
+void Stft::drawOntoSpectrogram(const DrawingStroke &stroke,
+                               juce::Image &specImage) {
+  for (const auto &info : stroke.strokeInfo) {
+    for (int i = 0; i < info.radius; i++) {
+      specImage.setPixelAt(info.x + i, info.y + i, info.colour);
+      specImage.setPixelAt(info.x - i, info.y - i, info.colour);
+    }
+  }
+}
+
 void Stft::findMinMax() {
   const int numFrames = static_cast<int>(m_stft.size());
   float maxNum = 0;
@@ -207,9 +218,7 @@ void Stft::updateSegmentsPassedInTrack(double samplesPassedInTrack,
                                        double latencySamples) {
   double samplesPassed = samplesPassedInTrack + latencySamples;
   if (samplesPassed != 0 && std::fmod(samplesPassed, double(fftSize)) == 0) {
-    // std::cout << "samplesPassed: " << samplesPassed << std::endl;
     segmentsPassed = samplesPassed / fftSize;
-    std::cout << segmentsPassed << std::endl;
   }
 }
 

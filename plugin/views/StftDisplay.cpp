@@ -3,15 +3,20 @@
 #include "juce_graphics/juce_graphics.h"
 
 StftDisplay::StftDisplay(AudioPluginAudioProcessor &p)
-    : processorRef(p),
-      spectrogram(juce::Image::RGB, getLocalBounds().getWidth(),
-                  getLocalBounds().getHeight(), true) {
-  displayWidth = getLocalBounds().getWidth();
+    : processorRef(p), spectrogram(juce::Image::RGB, 1, 1, true) {
+  displayWidth = 1;
   setInterceptsMouseClicks(false, false);
   setBufferedToImage(true);
 }
 
 StftDisplay::~StftDisplay() {}
+
+void StftDisplay::createSpectrogram(int w, int h) {
+  if (w <= 0 || h <= 0)
+    return;
+  spectrogram = juce::Image(juce::Image::RGB, w, h, true);
+  displayWidth = w;
+}
 
 void StftDisplay::initializeSpectrogram() {
   processorRef.stft.drawSpectorgramWithStft(spectrogram);
@@ -29,10 +34,11 @@ void StftDisplay::undoSpectrogramAction() {}
 void StftDisplay::paint(juce::Graphics &g) {
   auto bounds = getLocalBounds();
 
-  // std::cout << bounds.getHeight() << "And y: " << bounds.getWidth() <<
-  // std::endl;
-
   if (bounds.isEmpty()) {
+    return;
+  }
+
+  if (spectrogram.getWidth() <= 0 || spectrogram.getHeight() <= 0) {
     return;
   }
 
@@ -50,6 +56,5 @@ void StftDisplay::resized() {
   if (bounds.isEmpty())
     return;
 
-  spectrogram = juce::Image(juce::Image::RGB, bounds.getWidth(),
-                            bounds.getHeight(), true);
+  createSpectrogram(bounds.getWidth(), bounds.getHeight());
 }

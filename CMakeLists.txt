@@ -46,6 +46,10 @@ target_sources(SpecSelector
     plugin/events/EventBus.cpp
     plugin/events/EventBus.h
     plugin/interactable/DialInputs.h
+    plugin/interactable/StrokeSnapshot.h
+    plugin/interactable/DrawStrokeAction.h
+    plugin/interactable/DrawStrokeAction.cpp
+    plugin/interactable/DrawActionTracker.h
 )
 
 target_compile_definitions(SpecSelector

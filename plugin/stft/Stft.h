@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../interactable/DrawStrokeAction.h"
 #include "StftBuffers.h"
 #include <array>
 #include <juce_audio_utils/juce_audio_utils.h>
@@ -43,6 +44,7 @@ public:
   void drawSpectorgramWithStft(juce::Image &specImage);
   void drawOntoSpectrogram(int mouseEventX, int mouseEventY,
                            juce::Image &specImage);
+  void drawOntoSpectrogram(const DrawingStroke &stroke, juce::Image &specImage);
   bool hasData() const;
   void invertFttSegments();
   StftBuffers fftBuffers[2];

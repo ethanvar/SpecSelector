@@ -27,6 +27,9 @@ void ProgressMask::paint(juce::Graphics &g) {
   // double maskValue = ((m_currentProgress) / m_currentSongLength) *
   //                   static_cast<double>(bounds.getWidth());
   double maskValue = m_stftSegmentsPassed;
+
+  if (maskValue <= 0.0)
+    return;
   // double maskValue = (percentOfTotalFramesPassed) * bounds.getWidth();
   // std::cout << maskValue << std::endl;
   g.setColour(juce::Colours::black.withAlpha(0.5f));

@@ -1,6 +1,7 @@
 #include "Mediator.h"
 #include "StftDisplay.h"
 #include "juce_graphics/juce_graphics.h"
+#include "juce_gui_basics/juce_gui_basics.h"
 
 Mediator::Mediator(AudioPluginAudioProcessor &p)
     : processorRef(p), m_stftDisplay(p) {
@@ -8,7 +9,7 @@ Mediator::Mediator(AudioPluginAudioProcessor &p)
   addAndMakeVisible(m_stftDisplay);
   // setSize (1253, 768);
   // setSize (500, 768);
-
+  setWantsKeyboardFocus(true);
   addAndMakeVisible(m_mask);
   m_mask.setFftSize(p.fftSize);
   m_mask.setNumFrames(p.stft.getNumFrames());
@@ -17,15 +18,15 @@ Mediator::Mediator(AudioPluginAudioProcessor &p)
 Mediator::~Mediator() {}
 
 void Mediator::mouseDown(const juce::MouseEvent &event) {
-  // This triggers when the image is clicked
+  grabKeyboardFocus();
   std::cout << "CLICKED IMAGE AT (relative?): " << event.getMouseDownX() << ", "
             << event.getMouseDownY() << std::endl;
 
-  processorRef.stft.drawOntoSpectrogram(
+  currentStrokePoints.clear();
+  currentStrokePoints.emplace_back(
       event.getEventRelativeTo(this).getMouseDownX(),
-      event.getEventRelativeTo(this).getMouseDownY(),
-      m_stftDisplay.spectrogram);
-};
+      event.getEventRelativeTo(this).getMouseDownY());
+}
 
 void Mediator::mouseDrag(const juce::MouseEvent &event) {
   int pointOnScreenX =
@@ -35,12 +36,68 @@ void Mediator::mouseDrag(const juce::MouseEvent &event) {
       event.getEventRelativeTo(this).getMouseDownY() +
       event.getEventRelativeTo(this).getDistanceFromDragStartY();
 
-  PixelUpdate spectrogramUpdate;
-  spectrogramUpdate.pixelX = pointOnScreenX;
-  spectrogramUpdate.pixelY = pointOnScreenY;
-  spectrogramUpdate.colour = juce::Colours::red;
+  currentStrokePoints.emplace_back(pointOnScreenX, pointOnScreenY);
 
-  m_stftDisplay.updateSpectrogram(spectrogramUpdate);
+  // processorRef.stft.drawOntoSpectrogram(pointOnScreenX, pointOnScreenY,
+  //                                      m_stftDisplay.spectrogram);
+
+  // m_stftDisplay.repaint();
+}
+
+void Mediator::mouseUp(const juce::MouseEvent &event) {
+  if (!currentStrokePoints.empty()) {
+    DrawingStroke stroke;
+    stroke.colour = juce::Colour(100, 0, 0);
+    stroke.thickness = 1.0f;
+
+    for (const auto &pt : currentStrokePoints) {
+      StrokeInfo info;
+      info.x = pt.x;
+      info.y = pt.y;
+      info.colour = juce::Colour(100, 0, 0);
+      info.radius = 20;
+      stroke.strokeInfo.push_back(info);
+      stroke.coordinates.push_back(pt);
+    }
+
+    addStrokeToSpectrogram(stroke, currentStrokePoints);
+    currentStrokePoints.clear();
+  }
+}
+
+bool Mediator::keyPressed(const juce::KeyPress &key,
+                          juce::Component *originatingComponent) {
+  std::cout << "Key pressed: " << key.getTextCharacter() << std::endl;
+  if (key.getModifiers().isCommandDown() && key.getKeyCode() == 'z') {
+    undoLastStroke();
+    return true;
+  }
+  return false;
+}
+
+void Mediator::addStrokeToSpectrogram(
+    const DrawingStroke &stroke, const std::vector<StrokeCoordinate> &coords) {
+  DrawingStroke newStroke = stroke;
+
+  auto drawFn = [this](const DrawingStroke &s, juce::Image &img) {
+    processorRef.stft.drawOntoSpectrogram(s, img);
+  };
+
+  auto action = std::make_unique<DrawStrokeAction>(
+      drawnStrokes, m_stftDisplay.spectrogram, *this, newStroke, drawFn);
+  actionManager.AddMemento(std::move(action));
+  undoManager.perform(action.release());
+}
+
+void Mediator::undoLastStroke() {
+  if (actionManager.getMementosSize() > 0) {
+    DrawStrokeAction lastAction =
+        actionManager.getAction(actionManager.getMementosSize() - 2);
+    m_stftDisplay.spectrogram = lastAction.returnActionImage();
+  }
+  if (undoManager.canUndo()) {
+    undoManager.undo();
+  }
 }
 
 void Mediator::initializeStftDisplay() {
