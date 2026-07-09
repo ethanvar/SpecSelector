@@ -2,6 +2,7 @@
 #include "StftDisplay.h"
 #include "juce_graphics/juce_graphics.h"
 #include "juce_gui_basics/juce_gui_basics.h"
+#include <cstddef>
 
 Mediator::Mediator(AudioPluginAudioProcessor &p)
     : processorRef(p), m_stftDisplay(p) {
@@ -38,10 +39,10 @@ void Mediator::mouseDrag(const juce::MouseEvent &event) {
 
   currentStrokePoints.emplace_back(pointOnScreenX, pointOnScreenY);
 
-  // processorRef.stft.drawOntoSpectrogram(pointOnScreenX, pointOnScreenY,
-  //                                      m_stftDisplay.spectrogram);
+  processorRef.stft.drawOntoSpectrogram(pointOnScreenX, pointOnScreenY,
+                                        m_stftDisplay.spectrogram);
 
-  // m_stftDisplay.repaint();
+  m_stftDisplay.repaint();
 }
 
 void Mediator::mouseUp(const juce::MouseEvent &event) {
@@ -59,7 +60,6 @@ void Mediator::mouseUp(const juce::MouseEvent &event) {
       stroke.strokeInfo.push_back(info);
       stroke.coordinates.push_back(pt);
     }
-
     addStrokeToSpectrogram(stroke, currentStrokePoints);
     currentStrokePoints.clear();
   }
@@ -77,26 +77,40 @@ bool Mediator::keyPressed(const juce::KeyPress &key,
 
 void Mediator::addStrokeToSpectrogram(
     const DrawingStroke &stroke, const std::vector<StrokeCoordinate> &coords) {
+  std::cout << std::endl;
+  std::cout << std::endl;
+  std::cout << "adding stroke to spectrogram" << std::endl;
   DrawingStroke newStroke = stroke;
 
   auto drawFn = [this](const DrawingStroke &s, juce::Image &img) {
     processorRef.stft.drawOntoSpectrogram(s, img);
   };
 
-  auto action = std::make_unique<DrawStrokeAction>(
-      drawnStrokes, m_stftDisplay.spectrogram, *this, newStroke, drawFn);
+  auto action = std::make_unique<DrawStrokeAction>(m_stftDisplay.spectrogram,
+                                                   newStroke, drawFn);
   actionManager.AddMemento(std::move(action));
-  undoManager.perform(action.release());
 }
 
 void Mediator::undoLastStroke() {
+  std::cout << std::endl;
+  std::cout << std::endl;
   if (actionManager.getMementosSize() > 0) {
     DrawStrokeAction lastAction =
-        actionManager.getAction(actionManager.getMementosSize() - 2);
+        actionManager.getAction(actionManager.currentIndex - 1);
     m_stftDisplay.spectrogram = lastAction.returnActionImage();
+    m_stftDisplay.repaint();
   }
-  if (undoManager.canUndo()) {
-    undoManager.undo();
+}
+
+void Mediator::redoLastStroke() {
+  std::cout << std::endl;
+  std::cout << std::endl;
+  if (actionManager.getMementosSize() > 0 &&
+      (actionManager.currentIndex + 1 <= actionManager.getMementosSize())) {
+    DrawStrokeAction redoAction =
+        actionManager.getAction(actionManager.currentIndex + 1);
+    m_stftDisplay.spectrogram = redoAction.returnActionImage();
+    m_stftDisplay.repaint();
   }
 }
 

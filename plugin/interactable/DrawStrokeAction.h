@@ -26,28 +26,18 @@ struct DrawingStroke {
 using DrawOntoSpectrogramFn =
     std::function<void(const DrawingStroke &, juce::Image &)>;
 
-class DrawStrokeAction : public juce::UndoableAction {
+class DrawStrokeAction {
 public:
-  DrawStrokeAction(std::vector<DrawingStroke> &strokeList,
-                   juce::Image &spectrogram,
-                   juce::Component &componentToRepaint,
-                   const DrawingStroke &newStroke,
+  DrawStrokeAction(juce::Image &_spectrogram, const DrawingStroke &newStroke,
                    DrawOntoSpectrogramFn drawFn);
 
   ~DrawStrokeAction();
 
-  bool perform() override;
-
-  bool undo() override;
-
   juce::Image returnActionImage();
 
 private:
-  std::vector<DrawingStroke> &strokes;
-  juce::Image &spectrogram;
+  juce::Image spectrogram;
   DrawOntoSpectrogramFn drawFn;
-  juce::Component &owner;
   DrawingStroke stroke;
   size_t strokeIndex;
-  juce::Image spectrogramSnapshot;
 };

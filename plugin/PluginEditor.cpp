@@ -45,8 +45,8 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(
   inverseFft.setButtonText("inverseFft");
   inverseFft.onClick = [this] { inverseFttButton(); };
   addAndMakeVisible(&playButton);
-  playButton.setButtonText("Play Inverse");
-  playButton.onClick = [this] { togglePlayInverseFft(); };
+  playButton.setButtonText("Redo");
+  playButton.onClick = [this] { inverseFttButton(); };
   addAndMakeVisible(&pauseButton);
   pauseButton.setButtonText("Undo");
   pauseButton.onClick = [this] { togglePlayInverseFft(); };
@@ -83,13 +83,13 @@ void AudioPluginAudioProcessorEditor::openButtonClicked() {
 }
 
 void AudioPluginAudioProcessorEditor::inverseFttButton() {
-  processorRef.stft.invertFttSegments();
-  std::cout << "inverse Button Clicked" << std::endl;
+  mediator.redoLastStroke();
+  std::cout << "redo clicked" << std::endl;
 }
 
 void AudioPluginAudioProcessorEditor::togglePlayInverseFft() {
   mediator.undoLastStroke();
-  std::cout << "togglePlayInverseFft clicked" << std::endl;
+  std::cout << "undo clicked" << std::endl;
 }
 
 void AudioPluginAudioProcessorEditor::checkTimeClicked() {
@@ -102,8 +102,8 @@ void AudioPluginAudioProcessorEditor::resized() {
   midiVolume.setBounds(40, 30, 20, getHeight() - 60);
   midiPhase.setBounds(70, 30, 20, getHeight() - 60);
   openButton.setBounds((getWidth() / 2) - 40, 40, 80, 30);
-  inverseFft.setBounds((getWidth() / 2) - 40, 120, 80, 30);
-  checkTime.setBounds((getWidth() / 2) - 40, 80, 80, 30);
+  inverseFft.setBounds((getWidth() / 2) - 40, 80, 80, 30);
+  checkTime.setBounds((getWidth() / 2) - 40, 120, 80, 30);
   playButton.setBounds((getWidth() / 2) - 40,
                        120 + spectrogramBounds.getHeight() + 110, 80, 30);
   pauseButton.setBounds((getWidth() / 2) - 40,

@@ -25,6 +25,7 @@ public:
   void addStrokeToSpectrogram(const DrawingStroke &stroke,
                               const std::vector<StrokeCoordinate> &coords);
   void undoLastStroke();
+  void redoLastStroke();
 
 private:
   AudioPluginAudioProcessor &processorRef;
