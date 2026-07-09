@@ -31,7 +31,7 @@ public:
 
   ~DrawStrokeAction();
 
-  juce::Image returnActionImage();
+  juce::Image returnActionImage() const;
 
 private:
   juce::Image spectrogram;

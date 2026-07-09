@@ -93,10 +93,17 @@ void Mediator::addStrokeToSpectrogram(
 void Mediator::undoLastStroke() {
   std::cout << std::endl;
   std::cout << std::endl;
-  if (actionManager.getMementosSize() > 0) {
-    DrawStrokeAction lastAction =
-        actionManager.getAction(actionManager.currentIndex - 1);
-    m_stftDisplay.spectrogram = lastAction.returnActionImage();
+
+  if (actionManager.currentIndex >= 0) {
+    actionManager.currentIndex = actionManager.currentIndex - 1;
+
+    if (actionManager.currentIndex == -1) {
+      m_stftDisplay.initializeSpectrogram();
+    } else {
+      const auto &lastAction =
+          actionManager.getAction(actionManager.currentIndex);
+      m_stftDisplay.spectrogram = lastAction.returnActionImage().createCopy();
+    }
     m_stftDisplay.repaint();
   }
 }
@@ -108,7 +115,7 @@ void Mediator::redoLastStroke() {
       (actionManager.currentIndex + 1 <= actionManager.getMementosSize())) {
     DrawStrokeAction redoAction =
         actionManager.getAction(actionManager.currentIndex + 1);
-    m_stftDisplay.spectrogram = redoAction.returnActionImage();
+    m_stftDisplay.spectrogram = redoAction.returnActionImage().createCopy();
     m_stftDisplay.repaint();
   }
 }

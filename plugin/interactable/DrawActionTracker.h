@@ -9,7 +9,7 @@ public:
   int currentIndex = 0;
 
   void AddMemento(std::unique_ptr<DrawStrokeAction> memento) {
-    if (mementos.size() > 0) {
+    if (currentIndex < static_cast<int>(mementos.size()) - 1) {
       mementos.resize(currentIndex + 1);
     }
 
@@ -20,14 +20,10 @@ public:
       currentIndex = 0;
     }
 
-    for (int i = 0; i < mementos.size() - 1; ++i) {
-      if (currentIndex == i) {
-        std::cout << "------------------------------" << std::endl;
-      }
-      std::cout << "Memento " << i << ":" << &mementos[i] << std::endl;
-      if (currentIndex == i) {
-        std::cout << "------------------------------" << std::endl;
-      }
+    for (int i = 0; i < mementos.size(); ++i) {
+      if (currentIndex == i)
+        std::cout << "--- CURRENT ---" << std::endl;
+      std::cout << "Memento " << i << ": " << mementos[i].get() << std::endl;
     }
   }
 

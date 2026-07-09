@@ -8,4 +8,4 @@ DrawStrokeAction::DrawStrokeAction(juce::Image &_spectrogram,
 }
 
 DrawStrokeAction::~DrawStrokeAction() {};
-juce::Image DrawStrokeAction::returnActionImage() { return spectrogram; }
+juce::Image DrawStrokeAction::returnActionImage() const { return spectrogram; }
