@@ -2,7 +2,6 @@
 #include "StftDisplay.h"
 #include "juce_graphics/juce_graphics.h"
 #include "juce_gui_basics/juce_gui_basics.h"
-#include <cstddef>
 
 Mediator::Mediator(AudioPluginAudioProcessor &p)
     : processorRef(p), m_stftDisplay(p) {
