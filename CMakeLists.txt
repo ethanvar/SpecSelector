@@ -50,6 +50,7 @@ target_sources(SpecSelector
     plugin/interactable/DrawStrokeAction.h
     plugin/interactable/DrawStrokeAction.cpp
     plugin/interactable/DrawActionTracker.h
+    plugin/strokemap/StrokeMap.h
 )
 
 target_compile_definitions(SpecSelector
