@@ -35,6 +35,8 @@ target_sources(SpecSelector
     plugin/PluginEditor.h
     plugin/views/Mediator.cpp
     plugin/views/Mediator.h
+    plugin/strokemap/StrokeMap.h
+    plugin/strokemap/StrokeMap.cpp
     plugin/stft/Stft.cpp
     plugin/stft/Stft.h
     plugin/stft/StftBuffers.cpp
@@ -50,7 +52,6 @@ target_sources(SpecSelector
     plugin/interactable/DrawStrokeAction.h
     plugin/interactable/DrawStrokeAction.cpp
     plugin/interactable/DrawActionTracker.h
-    plugin/strokemap/StrokeMap.h
 )
 
 target_compile_definitions(SpecSelector

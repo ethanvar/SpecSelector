@@ -2,7 +2,6 @@
 
 #include "../interactable/DrawStrokeAction.h"
 #include <cstdint>
-#include <optional>
 #include <vector>
 
 // Represents the effect parameters associated with a single stroke
@@ -49,8 +48,7 @@ public:
   // - timeRow: the y-coordinate in the spectrogram (usually segmentsPassed)
   // If a pixel is already occupied, the new stroke overwrites it
   // (latest-wins semantics).
-  void addStroke(uint8_t effectType, const std::vector<StrokeInfo> &points,
-                 int timeRow);
+  void addStroke(uint8_t effectType, const std::vector<StrokeInfo> &points);
 
   // ------------------------------------------------------------------
   // Lookup — call from the audio thread (processSpectrum)
@@ -90,7 +88,6 @@ public:
   // Utility
   // ------------------------------------------------------------------
 
-  // Clear everything. Call on undo or when loading a new file.
   void clear();
 
 private:
@@ -107,139 +104,3 @@ private:
 
   void growHeight(int newHeight);
 };
-
-// -----------------------------------------------------------------------
-// Inline implementations
-// -----------------------------------------------------------------------
-
-inline void StrokeMap::init(int width, int initialHeight) {
-  width_ = width;
-  height_ = initialHeight;
-  typeMap_.resize(width_ * height_, 0);
-  strokeIndexMap_.resize(width_ * height_, 0);
-  strokeRegistry_.clear();
-  nextRegistryIndex_ = 1;
-}
-
-// inline void StrokeMap::expandTo(int newHeight) {
-//   if (newHeight > height_) {
-//     growHeight(newHeight);
-//   }
-//   height_ = newHeight;
-// }
-
-inline void StrokeMap::growHeight(int newHeight) {
-  auto oldData = std::move(typeMap_);
-  auto oldIndex = std::move(strokeIndexMap_);
-  int oldHeight = height_;
-
-  typeMap_.resize(width_ * newHeight, 0);
-  strokeIndexMap_.resize(width_ * newHeight, 0);
-
-  // Preserve existing rows.
-  for (int y = 0; y < oldHeight; ++y) {
-    std::memcpy(typeMap_.data() + y * width_, oldData.data() + y * width_,
-                width_ * sizeof(uint8_t));
-    std::memcpy(strokeIndexMap_.data() + y * width_,
-                oldIndex.data() + y * width_, width_ * sizeof(uint16_t));
-  }
-  height_ = newHeight;
-}
-
-inline void StrokeMap::addStroke(uint8_t effectType,
-                                 const std::vector<StrokeInfo> &points,
-                                 int timeRow) {
-  if (timeRow < 0 || timeRow >= height_ || width_ == 0) {
-    return;
-  }
-
-  // Register a new StrokeEffect entry in the registry.
-  StrokeEffect effect;
-  effect.type = effectType;
-
-  // Average the params over all points in the stroke.
-  // (Could also use max, min, or store per-point — this is a simple heuristic.)
-  float magSum = 0, phaseSum = 0, thickSum = 0;
-  int radiusSum = 0;
-  int pointCount = static_cast<int>(points.size());
-
-  for (const auto &p : points) {
-    // Derive magnitude/phase from the colour (or store them directly
-    // on StrokeInfo if you prefer). For now, we use the colour as
-    // a simple discriminator.
-    auto rgb = p.colour.getARGB();
-    effect.magnitude = static_cast<float>((rgb >> 16) & 0xFF) / 255.0f;
-    effect.phase = static_cast<float>((rgb >> 8) & 0xFF) / 255.0f;
-    effect.radius = p.radius;
-    effect.thickness = 1.0f; // or derive from pointCount
-    thickSum += effect.thickness;
-  }
-
-  auto idx = nextRegistryIndex_++;
-
-  // If the registry slot already exists from a previous call, update it.
-  if (idx < strokeRegistry_.size()) {
-    strokeRegistry_[idx] = effect;
-  } else {
-    strokeRegistry_.push_back(effect);
-  }
-
-  // Paint the stroke onto the map.
-  for (const auto &p : points) {
-    if (p.x < 0 || p.x >= width_ || timeRow < 0 || timeRow >= height_) {
-      continue; // skip out-of-bounds points
-    }
-    int idx2d = timeRow * width_ + p.x;
-    typeMap_[idx2d] = effectType;
-    strokeIndexMap_[idx2d] = static_cast<uint16_t>(idx);
-  }
-}
-
-inline uint8_t StrokeMap::getStrokeType(int x, int y) const {
-  if (x < 0 || x >= width_ || y < 0 || y >= height_) {
-    return 0;
-  }
-  return typeMap_[y * width_ + x];
-}
-
-inline int StrokeMap::getStrokeIndex(int x, int y) const {
-  if (x < 0 || x >= width_ || y < 0 || y >= height_) {
-    return 0;
-  }
-  return static_cast<int>(strokeIndexMap_[y * width_ + x]);
-}
-
-inline const StrokeEffect *StrokeMap::getStrokeEffect(int x, int y) const {
-  int idx = getStrokeIndex(x, y);
-  if (idx == 0 || idx >= static_cast<int>(strokeRegistry_.size())) {
-    return nullptr;
-  }
-  return &strokeRegistry_[idx];
-}
-
-inline std::vector<StrokeMap::PixelEntry>
-StrokeMap::getEntriesForRow(int timeRow) const {
-  std::vector<PixelEntry> result;
-  if (timeRow < 0 || timeRow >= height_ || width_ == 0) {
-    return result;
-  }
-  result.reserve(static_cast<size_t>(width_));
-  int rowOffset = timeRow * width_;
-  for (int x = 0; x < width_; ++x) {
-    uint8_t t = typeMap_[rowOffset + x];
-    if (t != 0) {
-      result.push_back(
-          {x, t, static_cast<int>(strokeIndexMap_[rowOffset + x])});
-    }
-  }
-  return result;
-}
-
-inline void StrokeMap::clear() {
-  width_ = 0;
-  height_ = 0;
-  typeMap_.clear();
-  strokeIndexMap_.clear();
-  strokeRegistry_.clear();
-  nextRegistryIndex_ = 1;
-}

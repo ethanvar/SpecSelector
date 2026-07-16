@@ -21,6 +21,10 @@ void StftDisplay::createSpectrogram(int w, int h) {
 void StftDisplay::initializeSpectrogram() {
   processorRef.stft.drawSpectorgramWithStft(spectrogram);
   repaint();
+  processorRef.stft.strokeMap.init(spectrogram.getBounds().getWidth(),
+                                   spectrogram.getBounds().getHeight());
+  std::cout << "spectrogram bounds: " << spectrogram.getBounds().getHeight()
+            << " & " << spectrogram.getBounds().getWidth() << std::endl;
 }
 
 void StftDisplay::updateSpectrogram(PixelUpdate &update) {
