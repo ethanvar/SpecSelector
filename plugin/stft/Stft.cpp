@@ -10,8 +10,10 @@
 Stft::Stft(DialInputs &inputs)
     : m_forwardFFT(m_fftOrder),
       window(fftSize, juce::dsp::WindowingFunction<float>::hann, false),
-      fftBuffers{StftBuffers(window, m_forwardFFT, inputs),
-                 StftBuffers(window, m_forwardFFT, inputs)} {
+      fftBuffers{
+          StftBuffers(window, m_forwardFFT, inputs, &strokeMap, segmentsPassed),
+          StftBuffers(window, m_forwardFFT, inputs, &strokeMap,
+                      segmentsPassed)} {
   m_reconstructedAudio.setSize(2, 516);
 };
 

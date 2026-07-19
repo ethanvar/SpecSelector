@@ -87,6 +87,7 @@ void Mediator::addStrokeToSpectrogram(
 
   auto action = std::make_unique<DrawStrokeAction>(m_stftDisplay.spectrogram,
                                                    newStroke, drawFn);
+  processorRef.stft.strokeMap.addStroke(1, newStroke.strokeInfo);
   actionManager.AddMemento(std::move(action));
 }
 

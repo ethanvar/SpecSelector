@@ -1,5 +1,6 @@
 #pragma once
 #include "../interactable/DialInputs.h"
+#include "../strokemap/StrokeMap.h"
 #include <array>
 #include <juce_dsp/juce_dsp.h>
 
@@ -20,10 +21,13 @@ private:
   std::array<float, fftSize> inputFifo;
   std::array<float, fftSize> outputFifo;
   DialInputs &inputsRef;
+  const StrokeMap *strokeMap = nullptr;
+  int &segmentsPassed;
 
 public:
   StftBuffers(const juce::dsp::WindowingFunction<float> &w,
-              const juce::dsp::FFT &f, DialInputs &inputs);
+              const juce::dsp::FFT &f, DialInputs &inputs, StrokeMap *map,
+              int &_segsPassed);
   ~StftBuffers();
   void reset();
   float processSample(float sample, bool bypassed);

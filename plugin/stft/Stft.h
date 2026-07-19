@@ -48,8 +48,8 @@ public:
   void drawOntoSpectrogram(const DrawingStroke &stroke, juce::Image &specImage);
   bool hasData() const;
   void invertFttSegments();
-  StftBuffers fftBuffers[2];
   StrokeMap strokeMap;
+  StftBuffers fftBuffers[2];
 
   void updateSegmentsPassedInTrack(double samplesPassed, double latencySamples);
   int getLatencyInSamples() const;

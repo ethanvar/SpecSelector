@@ -1,8 +1,10 @@
 #include "StftBuffers.h"
 
 StftBuffers::StftBuffers(const juce::dsp::WindowingFunction<float> &w,
-                         const juce::dsp::FFT &f, DialInputs &inputs)
-    : window(w), forwardFFT(f), inputsRef(inputs) {}
+                         const juce::dsp::FFT &f, DialInputs &inputs,
+                         StrokeMap *map, int &segsPassed)
+    : window(w), forwardFFT(f), inputsRef(inputs), strokeMap(map),
+      segmentsPassed(segsPassed) {}
 
 StftBuffers::~StftBuffers() {}
 
@@ -66,6 +68,7 @@ void StftBuffers::processFrame(bool bypassed) {
 
 void StftBuffers::processSpectrum(float *data, int numBins) {
   std::complex<float> *cdata = reinterpret_cast<std::complex<float> *>(data);
+  int xCoordiante = segmentsPassed;
 
   for (int i = 0; i < numBins; ++i) {
     float magnitude = std::abs(cdata[i]);

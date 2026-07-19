@@ -63,7 +63,11 @@ void StrokeMap::addStroke(uint8_t effectType,
 
   auto idx = nextRegistryIndex_++;
 
-  strokeRegistry_[idx] = effect;
+  if (idx < strokeRegistry_.size()) {
+    strokeRegistry_[idx] = effect;
+  } else {
+    strokeRegistry_.push_back(effect);
+  }
 
   // Paint the stroke onto the map.
   for (const auto &p : points) {
