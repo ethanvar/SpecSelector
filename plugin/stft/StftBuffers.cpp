@@ -66,19 +66,39 @@ void StftBuffers::processFrame(bool bypassed) {
   }
 }
 
+int fftIndextoY(int fftIndex, int imageHeight, int m_fftSize) {
+  // Guard against edge cases
+  if (fftIndex <= 0)
+    return imageHeight - 1; // Highest frequency → bottom
+  if (fftIndex >= m_fftSize / 2)
+    return 0; // Lowest frequency → top
+
+  float skewedProportionY = (float)fftIndex / (float(m_fftSize) / 2.0f);
+  float proportionY = std::pow(1.0f - skewedProportionY, 5.0f);
+
+  return juce::jlimit(0, imageHeight - 1,
+                      static_cast<int>(proportionY * (float)imageHeight));
+}
+
 void StftBuffers::processSpectrum(float *data, int numBins) {
   std::complex<float> *cdata = reinterpret_cast<std::complex<float> *>(data);
-  int xCoordiante = segmentsPassed;
+  int xCoordinate = segmentsPassed;
 
   for (int i = 0; i < numBins; ++i) {
+    int yCoordinate = fftIndextoY(i, 360, numBins);
     float magnitude = std::abs(cdata[i]);
     float phase = std::arg(cdata[i]);
     // std::cout << inputsRef.magnitude << std::endl;
     //  This is where you'd do your spectral processing..
     //
-    if (i > 50) {
+    // if (i > 50) {
+    //  magnitude *= (float(0.01) * inputsRef.magnitude);
+    //}
+
+    if (strokeMap->getStrokeIndex(xCoordinate, yCoordinate) != 0) {
       magnitude *= (float(0.01) * inputsRef.magnitude);
     }
+
     // magnitude *= (float(0.01) * inputsRef.magnitude);
     phase *= inputsRef.phase;
     cdata[i] = std::polar(magnitude, phase);

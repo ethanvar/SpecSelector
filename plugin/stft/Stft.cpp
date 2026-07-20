@@ -109,7 +109,6 @@ void Stft::drawSpectorgramWithStft(juce::Image &specImage) {
   // Loop over each FFT frame
   for (int i = 0; i < numFrames; ++i) {
     // Get the FFT magnitudes for the current frame
-    // const float *fftMagnitudes = m_stft[i].frequencyData.data();
     std::array<float, m_fftSize / 2> dbMagnitudes;
     for (int j = 0; j < m_fftSize / 2; ++j) {
       /** Since we arent using performFrequencyOnlyForwardTransform we need to
