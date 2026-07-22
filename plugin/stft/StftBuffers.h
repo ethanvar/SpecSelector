@@ -23,6 +23,7 @@ private:
   DialInputs &inputsRef;
   const StrokeMap *strokeMap = nullptr;
   int &segmentsPassed;
+  std::unique_ptr<int> imageHeight;
 
 public:
   StftBuffers(const juce::dsp::WindowingFunction<float> &w,
@@ -33,4 +34,5 @@ public:
   float processSample(float sample, bool bypassed);
   void processSpectrum(float *data, int numBins);
   void processFrame(bool bypassed);
+  void setImageHeight(const int &height);
 };

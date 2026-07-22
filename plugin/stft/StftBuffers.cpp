@@ -67,11 +67,10 @@ void StftBuffers::processFrame(bool bypassed) {
 }
 
 int fftIndextoY(int fftIndex, int imageHeight, int m_fftSize) {
-  // Guard against edge cases
   if (fftIndex <= 0)
-    return imageHeight - 1; // Highest frequency → bottom
+    return imageHeight - 1;
   if (fftIndex >= m_fftSize / 2)
-    return 0; // Lowest frequency → top
+    return 0;
 
   float skewedProportionY = (float)fftIndex / (float(m_fftSize) / 2.0f);
   float proportionY = std::pow(1.0f - skewedProportionY, 5.0f);
@@ -88,19 +87,20 @@ void StftBuffers::processSpectrum(float *data, int numBins) {
     int yCoordinate = fftIndextoY(i, 360, numBins);
     float magnitude = std::abs(cdata[i]);
     float phase = std::arg(cdata[i]);
-    // std::cout << inputsRef.magnitude << std::endl;
-    //  This is where you'd do your spectral processing..
-    //
-    // if (i > 50) {
-    //  magnitude *= (float(0.01) * inputsRef.magnitude);
-    //}
 
     if (strokeMap->getStrokeIndex(xCoordinate, yCoordinate) != 0) {
       magnitude *= (float(0.01) * inputsRef.magnitude);
+    } else {
+      magnitude *= float(0);
     }
 
     // magnitude *= (float(0.01) * inputsRef.magnitude);
     phase *= inputsRef.phase;
     cdata[i] = std::polar(magnitude, phase);
   }
+}
+
+void StftBuffers::setImageHeight(const int &height) {
+  imageHeight = std::make_unique<int>(height);
+  std::cout << "Set image height: " << *imageHeight << std::endl;
 }

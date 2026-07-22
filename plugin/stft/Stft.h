@@ -24,7 +24,7 @@ private:
   int m_fifoIndex = 0;
   int m_currentSampleNum = 0;
   std::vector<StftSegment> m_stft;
-  float m_maxDBGlobal;
+  float m_maxDBGlobal = 0.0f;
   juce::AudioBuffer<float> m_reconstructedAudio;
 
 public:
@@ -42,6 +42,7 @@ public:
   void findMinMax();
   void addLineToStft(std::array<float, StftSegment::fftSize * 2> &fourierData);
   void printStftValues();
+  void setImageHeight(const int &height);
   void drawSpectorgramWithStft(juce::Image &specImage);
   void drawOntoSpectrogram(int mouseEventX, int mouseEventY,
                            juce::Image &specImage);

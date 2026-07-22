@@ -76,6 +76,8 @@ void Stft::addLineToStft(std::array<float, fftSize * 2> &fourierData) {
 void Stft::invertFttSegments() {
   std::cout << "Inverting fft segments" << std::endl;
   std::cout << m_currentSampleNum << std::endl;
+  m_reconstructedAudio.setSize(m_reconstructedAudio.getNumChannels(),
+                               m_currentSampleNum * m_fftSize + m_fftSize);
   for (int i = 0; i < m_currentSampleNum; ++i) {
     m_forwardFFT.performRealOnlyInverseTransform(
         m_stft[i].frequencyData.data());
@@ -182,21 +184,29 @@ void Stft::drawSpectorgramWithStft(juce::Image &specImage) {
 
 void Stft::drawOntoSpectrogram(int mouseEventX, int mouseEventY,
                                juce::Image &specImage) {
+  const int w = specImage.getWidth();
+  const int h = specImage.getHeight();
 
   for (int i = 0; i < 20; i++) {
-    specImage.setPixelAt(mouseEventX + i, mouseEventY + i,
+    specImage.setPixelAt(juce::jlimit(0, w - 1, mouseEventX + i),
+                         juce::jlimit(0, h - 1, mouseEventY + i),
                          juce::Colour(100, 0, 0));
-    specImage.setPixelAt(mouseEventX - i, mouseEventY - i,
+    specImage.setPixelAt(juce::jlimit(0, w - 1, mouseEventX - i),
+                         juce::jlimit(0, h - 1, mouseEventY - i),
                          juce::Colour(100, 0, 0));
   }
 };
 
 void Stft::drawOntoSpectrogram(const DrawingStroke &stroke,
                                juce::Image &specImage) {
+  const int w = specImage.getWidth();
+  const int h = specImage.getHeight();
   for (const auto &info : stroke.strokeInfo) {
     for (int i = 0; i < info.radius; i++) {
-      specImage.setPixelAt(info.x + i, info.y + i, info.colour);
-      specImage.setPixelAt(info.x - i, info.y - i, info.colour);
+      specImage.setPixelAt(juce::jlimit(0, w - 1, info.x + i),
+                           juce::jlimit(0, h - 1, info.y + i), info.colour);
+      specImage.setPixelAt(juce::jlimit(0, w - 1, info.x - i),
+                           juce::jlimit(0, h - 1, info.y - i), info.colour);
     }
   }
 }

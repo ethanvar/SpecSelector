@@ -15,6 +15,8 @@ void ProgressMask::paint(juce::Graphics &g) {
   if (m_currentSongLength <= 0.0)
     return;
 
+  std::cout << "StftSegmentsPassed: " << m_stftSegmentsPassed << std::endl;
+
   // std::cout << "Number of frames: " << *m_numFrames << std::endl;
   juce::Rectangle<int> bounds = getLocalBounds();
   juce::RectanglePlacement placement;
@@ -38,7 +40,7 @@ void ProgressMask::paint(juce::Graphics &g) {
   g.drawImageAt(actualProgress, bounds.getX(), bounds.getY(), false);
 }
 
-void ProgressMask::setNumFrames(int &frame) { m_numFrames = &frame; }
+void ProgressMask::setNumFrames(int frame) { m_numFrames = frame; }
 
 void ProgressMask::setFftSize(int size) { m_fftSize = size; }
 

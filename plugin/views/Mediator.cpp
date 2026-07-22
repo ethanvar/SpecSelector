@@ -81,8 +81,9 @@ void Mediator::addStrokeToSpectrogram(
   std::cout << "adding stroke to spectrogram" << std::endl;
   DrawingStroke newStroke = stroke;
 
-  auto drawFn = [this](const DrawingStroke &s, juce::Image &img) {
-    processorRef.stft.drawOntoSpectrogram(s, img);
+  auto drawFn = [stft = &processorRef.stft](const DrawingStroke &s,
+                                            juce::Image &img) {
+    stft->drawOntoSpectrogram(s, img);
   };
 
   auto action = std::make_unique<DrawStrokeAction>(m_stftDisplay.spectrogram,
