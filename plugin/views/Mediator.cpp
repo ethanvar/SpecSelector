@@ -49,7 +49,6 @@ void Mediator::mouseUp(const juce::MouseEvent &event) {
     DrawingStroke stroke;
     stroke.colour = juce::Colour(100, 0, 0);
     stroke.thickness = 1.0f;
-
     for (const auto &pt : currentStrokePoints) {
       StrokeInfo info;
       info.x = pt.x;
@@ -59,14 +58,23 @@ void Mediator::mouseUp(const juce::MouseEvent &event) {
       stroke.strokeInfo.push_back(info);
       stroke.coordinates.push_back(pt);
     }
-    addStrokeToSpectrogram(stroke, currentStrokePoints);
+
+    auto drawFn = [stft = &processorRef.stft](const DrawingStroke &s,
+                                              juce::Image &img) {
+      stft->drawOntoSpectrogram(s, img);
+    };
+    auto action = std::make_unique<DrawStrokeAction>(m_stftDisplay.spectrogram,
+                                                     stroke, drawFn);
+
+    processorRef.stft.addStrokeToSpectrogram(stroke, currentStrokePoints,
+                                             m_stftDisplay.spectrogram);
+    actionManager.AddMemento(std::move(action));
     currentStrokePoints.clear();
   }
 }
 
 bool Mediator::keyPressed(const juce::KeyPress &key,
                           juce::Component *originatingComponent) {
-  std::cout << "Key pressed: " << key.getTextCharacter() << std::endl;
   if (key.getModifiers().isCommandDown() && key.getKeyCode() == 'z') {
     undoLastStroke();
     return true;
@@ -74,28 +82,7 @@ bool Mediator::keyPressed(const juce::KeyPress &key,
   return false;
 }
 
-void Mediator::addStrokeToSpectrogram(
-    const DrawingStroke &stroke, const std::vector<StrokeCoordinate> &coords) {
-  std::cout << std::endl;
-  std::cout << std::endl;
-  std::cout << "adding stroke to spectrogram" << std::endl;
-  DrawingStroke newStroke = stroke;
-
-  auto drawFn = [stft = &processorRef.stft](const DrawingStroke &s,
-                                            juce::Image &img) {
-    stft->drawOntoSpectrogram(s, img);
-  };
-
-  auto action = std::make_unique<DrawStrokeAction>(m_stftDisplay.spectrogram,
-                                                   newStroke, drawFn);
-  processorRef.stft.strokeMap.addStroke(1, newStroke.strokeInfo);
-  actionManager.AddMemento(std::move(action));
-}
-
 void Mediator::undoLastStroke() {
-  std::cout << std::endl;
-  std::cout << std::endl;
-
   if (actionManager.currentIndex >= 0) {
     actionManager.currentIndex = actionManager.currentIndex - 1;
 
@@ -111,8 +98,6 @@ void Mediator::undoLastStroke() {
 }
 
 void Mediator::redoLastStroke() {
-  std::cout << std::endl;
-  std::cout << std::endl;
   if (actionManager.getMementosSize() > 0 &&
       (actionManager.currentIndex + 1 <= actionManager.getMementosSize())) {
     DrawStrokeAction redoAction =

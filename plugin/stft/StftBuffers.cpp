@@ -101,6 +101,6 @@ void StftBuffers::processSpectrum(float *data, int numBins) {
 }
 
 void StftBuffers::setImageHeight(const int &height) {
-  imageHeight = std::make_unique<int>(height);
-  std::cout << "Set image height: " << *imageHeight << std::endl;
+  // imageHeight = std::make_unique<int>(height);
+  // std::cout << "Set image height: " << *imageHeight << std::endl;
 }

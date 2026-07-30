@@ -21,8 +21,9 @@ void StftDisplay::createSpectrogram(int w, int h) {
 void StftDisplay::initializeSpectrogram() {
   processorRef.stft.drawSpectorgramWithStft(spectrogram);
   repaint();
-  processorRef.stft.strokeMap.init(spectrogram.getBounds().getWidth(),
-                                   spectrogram.getBounds().getHeight());
+  processorRef.stft.initStrokemap(spectrogram.getBounds().getWidth(),
+                                  spectrogram,
+                                  spectrogram.getBounds().getHeight());
 }
 
 void StftDisplay::updateSpectrogram(PixelUpdate &update) {

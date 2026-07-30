@@ -74,20 +74,19 @@ void StrokeMap::addStroke(uint8_t effectType,
     if (p.x < 0 || p.x >= width_) {
       continue; // skip out-of-bounds points
     }
-    // int idx2d = timeRow * width_ + p.x;
-
-    // int idx2d = width_ * p.y + p.x;
-    // typeMap_[idx2d] = effectType;
-    // strokeIndexMap_[idx2d] = static_cast<uint16_t>(idx);
 
     for (int i = 0; i < p.radius; ++i) {
       int r1idx2d = width_ * (p.y + i) + (p.x + i);
-      typeMap_[r1idx2d] = effectType;
-      strokeIndexMap_[r1idx2d] = static_cast<uint16_t>(idx);
+      if (r1idx2d < strokeIndexMap_.size() && r1idx2d >= 0) {
+        typeMap_[r1idx2d] = effectType;
+        strokeIndexMap_[r1idx2d] = static_cast<uint16_t>(idx);
+      }
 
       int r2idx2d = width_ * (p.y - i) + (p.x - i);
-      typeMap_[r2idx2d] = effectType;
-      strokeIndexMap_[r2idx2d] = static_cast<uint16_t>(idx);
+      if (r2idx2d < strokeIndexMap_.size() && r2idx2d >= 0) {
+        typeMap_[r2idx2d] = effectType;
+        strokeIndexMap_[r2idx2d] = static_cast<uint16_t>(idx);
+      }
     }
   }
 }

@@ -23,7 +23,7 @@ private:
   DialInputs &inputsRef;
   const StrokeMap *strokeMap = nullptr;
   int &segmentsPassed;
-  std::unique_ptr<int> imageHeight;
+  // std::unique_ptr<int> imageHeight;
 
 public:
   StftBuffers(const juce::dsp::WindowingFunction<float> &w,

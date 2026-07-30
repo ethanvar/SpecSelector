@@ -229,10 +229,21 @@ void Stft::updateSegmentsPassedInTrack(double samplesPassedInTrack,
                                        double latencySamples) {
   double samplesPassed = samplesPassedInTrack + latencySamples;
   if (samplesPassed != 0 && std::fmod(samplesPassed, double(fftSize)) == 0) {
-    // std::cout << "samplesPassed: " << samplesPassed << std::endl;
     segmentsPassed = samplesPassed / fftSize;
-    // std::cout << segmentsPassed << std::endl;
   }
+}
+
+void Stft::addStrokeToSpectrogram(const DrawingStroke &stroke,
+                                  const std::vector<StrokeCoordinate> &coords,
+                                  juce::Image &spectrogram) {
+  DrawingStroke newStroke = stroke;
+  strokeMap.addStroke(1, newStroke.strokeInfo);
+}
+
+void Stft::initStrokemap(int width, juce::Image &spectrogram,
+                         int initialHeight) {
+  strokeMap.init(spectrogram.getBounds().getWidth(),
+                 spectrogram.getBounds().getHeight());
 }
 
 int &Stft::getNumFrames() { return m_currentSampleNum; }

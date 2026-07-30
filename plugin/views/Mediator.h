@@ -21,9 +21,6 @@ public:
   void mouseUp(const juce::MouseEvent &event) override;
   bool keyPressed(const juce::KeyPress &key,
                   juce::Component *originatingComponent);
-
-  void addStrokeToSpectrogram(const DrawingStroke &stroke,
-                              const std::vector<StrokeCoordinate> &coords);
   void undoLastStroke();
   void redoLastStroke();
 

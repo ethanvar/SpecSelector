@@ -98,7 +98,7 @@ void AudioPluginAudioProcessorEditor::checkTimeClicked() {
 
 void AudioPluginAudioProcessorEditor::resized() {
   spectrogramBounds = getLocalBounds().withSizeKeepingCentre(
-      getWidth() * 70 / 100, getHeight() * 50 / 100);
+      getWidth() * 60 / 100, getHeight() * 50 / 100);
   midiVolume.setBounds(40, 30, 20, getHeight() - 60);
   midiPhase.setBounds(70, 30, 20, getHeight() - 60);
   openButton.setBounds((getWidth() / 2) - 40, 40, 80, 30);

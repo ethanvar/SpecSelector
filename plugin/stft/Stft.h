@@ -26,6 +26,7 @@ private:
   std::vector<StftSegment> m_stft;
   float m_maxDBGlobal = 0.0f;
   juce::AudioBuffer<float> m_reconstructedAudio;
+  StrokeMap strokeMap;
 
 public:
   static constexpr auto fftOrder = 9;
@@ -49,7 +50,13 @@ public:
   void drawOntoSpectrogram(const DrawingStroke &stroke, juce::Image &specImage);
   bool hasData() const;
   void invertFttSegments();
-  StrokeMap strokeMap;
+  void addStrokeToSpectrogram(const DrawingStroke &stroke,
+                              const std::vector<StrokeCoordinate> &coords,
+                              juce::Image &spectrogram);
+  void addStrokeToStrokemap(uint8_t effectType,
+                            const std::vector<StrokeInfo> &points);
+  void initStrokemap(int width, juce::Image &spectrogram,
+                     int initialHeight = 0);
   StftBuffers fftBuffers[2];
 
   void updateSegmentsPassedInTrack(double samplesPassed, double latencySamples);
