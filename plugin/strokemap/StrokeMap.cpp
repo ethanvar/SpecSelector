@@ -4,7 +4,7 @@ void StrokeMap::init(int width, int initialHeight) {
   width_ = width;
   height_ = initialHeight;
   typeMap_.resize(width_ * height_, 0);
-  strokeIndexMap_.resize(width_ * height_, 0);
+  strokeIndexMap_.resize(width_ * height_);
   strokeRegistry_.clear();
   nextRegistryIndex_ = 1;
 }
@@ -22,7 +22,7 @@ void StrokeMap::growHeight(int newHeight) {
   int oldHeight = height_;
 
   typeMap_.resize(width_ * newHeight, 0);
-  strokeIndexMap_.resize(width_ * newHeight, 0);
+  strokeIndexMap_.resize(width_ * newHeight);
 
   // Preserve existing rows.
   for (int y = 0; y < oldHeight; ++y) {
@@ -79,17 +79,19 @@ void StrokeMap::addStroke(uint8_t effectType,
       int r1idx2d = width_ * (p.y + i) + (p.x + i);
       if (r1idx2d < strokeIndexMap_.size() && r1idx2d >= 0) {
         typeMap_[r1idx2d] = effectType;
-        strokeIndexMap_[r1idx2d] = static_cast<uint16_t>(idx);
+        strokeIndexMap_[r1idx2d].push_back(static_cast<uint16_t>(idx));
       }
 
       int r2idx2d = width_ * (p.y - i) + (p.x - i);
       if (r2idx2d < strokeIndexMap_.size() && r2idx2d >= 0) {
         typeMap_[r2idx2d] = effectType;
-        strokeIndexMap_[r2idx2d] = static_cast<uint16_t>(idx);
+        strokeIndexMap_[r2idx2d].push_back(static_cast<uint16_t>(idx));
       }
     }
   }
 }
+
+void removeStroke(uint8_t effectType, const std::vector<StrokeInfo> &points) {}
 
 uint8_t StrokeMap::getStrokeType(int x, int y) const {
   if (x < 0 || x >= width_ || y < 0 || y >= height_) {
@@ -98,24 +100,36 @@ uint8_t StrokeMap::getStrokeType(int x, int y) const {
   return typeMap_[y * width_ + x];
 }
 
-int StrokeMap::getStrokeIndex(int x, int y) const {
+std::vector<uint16_t> StrokeMap::getStrokeIndex(int x, int y) const {
   if (x < 0 || x >= width_ || y < 0 || y >= height_) {
-    return 0;
+    return {};
   }
-  return static_cast<int>(strokeIndexMap_[y * width_ + x]);
+  return static_cast<std::vector<uint16_t>>(strokeIndexMap_[y * width_ + x]);
 }
 
-const StrokeEffect *StrokeMap::getStrokeEffect(int x, int y) const {
-  int idx = getStrokeIndex(x, y);
-  if (idx == 0 || idx >= static_cast<int>(strokeRegistry_.size())) {
-    return nullptr;
+const std::vector<const StrokeEffect *>
+StrokeMap::getStrokeEffect(int x, int y) const {
+  std::vector<uint16_t> indices = getStrokeIndex(x, y);
+  if (0 >= static_cast<int>(indices.size()) ||
+      indices.back() <= static_cast<int>(strokeRegistry_.size())) {
+    return {};
   }
-  return &strokeRegistry_[idx];
+
+  std::vector<const StrokeEffect *> results;
+  results.reserve(indices.size());
+
+  for (uint16_t id : indices) {
+    if (id < strokeRegistry_.size()) {
+      results.push_back(&strokeRegistry_[id]);
+    }
+  }
+
+  return results;
 }
 
-std::vector<StrokeMap::PixelEntry>
+std::vector<StrokeMap::PixelEntries>
 StrokeMap::getEntriesForRow(int timeRow) const {
-  std::vector<PixelEntry> result;
+  std::vector<PixelEntries> result;
   if (timeRow < 0 || timeRow >= height_ || width_ == 0) {
     return result;
   }
@@ -125,7 +139,8 @@ StrokeMap::getEntriesForRow(int timeRow) const {
     uint8_t t = typeMap_[rowOffset + x];
     if (t != 0) {
       result.push_back(
-          {x, t, static_cast<int>(strokeIndexMap_[rowOffset + x])});
+          {x, t,
+           static_cast<std::vector<uint16_t>>(strokeIndexMap_[rowOffset + x])});
     }
   }
   return result;

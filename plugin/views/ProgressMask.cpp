@@ -15,9 +15,6 @@ void ProgressMask::paint(juce::Graphics &g) {
   if (m_currentSongLength <= 0.0)
     return;
 
-  std::cout << "StftSegmentsPassed: " << m_stftSegmentsPassed << std::endl;
-
-  // std::cout << "Number of frames: " << *m_numFrames << std::endl;
   juce::Rectangle<int> bounds = getLocalBounds();
   juce::RectanglePlacement placement;
   // int currFramesPassed = ((double) m_currentProgress / double (m_fftSize*2));

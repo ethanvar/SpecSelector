@@ -88,7 +88,7 @@ void StftBuffers::processSpectrum(float *data, int numBins) {
     float magnitude = std::abs(cdata[i]);
     float phase = std::arg(cdata[i]);
 
-    if (strokeMap->getStrokeIndex(xCoordinate, yCoordinate) != 0) {
+    if (strokeMap->getStrokeIndex(xCoordinate, yCoordinate).size() != 0) {
       magnitude *= (float(0.01) * inputsRef.magnitude);
     } else {
       magnitude *= float(0);

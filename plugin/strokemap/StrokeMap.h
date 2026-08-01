@@ -49,6 +49,7 @@ public:
   // If a pixel is already occupied, the new stroke overwrites it
   // (latest-wins semantics).
   void addStroke(uint8_t effectType, const std::vector<StrokeInfo> &points);
+  void removeStroke(uint8_t effectType, const std::vector<StrokeInfo> &points);
 
   // ------------------------------------------------------------------
   // Lookup — call from the audio thread (processSpectrum)
@@ -58,20 +59,20 @@ public:
   uint8_t getStrokeType(int x, int y) const;
 
   // Returns the stroke registry index at (x, y). 0 means no stroke.
-  int getStrokeIndex(int x, int y) const;
+  std::vector<uint16_t> getStrokeIndex(int x, int y) const;
 
   // Returns a pointer to the registry entry for the stroke at (x, y).
   // Returns nullptr if no stroke is painted at that position.
-  const StrokeEffect *getStrokeEffect(int x, int y) const;
+  const std::vector<const StrokeEffect *> getStrokeEffect(int x, int y) const;
 
   // Convenience: returns all strokes painted at a given time-row.
   // Useful for batch processing or rebuilding the map.
-  struct PixelEntry {
+  struct PixelEntries {
     int x;
     uint8_t type;
-    int index;
+    std::vector<uint16_t> indices;
   };
-  std::vector<PixelEntry> getEntriesForRow(int timeRow) const;
+  std::vector<PixelEntries> getEntriesForRow(int timeRow) const;
 
   // ------------------------------------------------------------------
   // Dynamic sizing
@@ -96,7 +97,7 @@ private:
 
   // Flat 1D arrays, indexed as map[y * width_ + x]
   std::vector<uint8_t> typeMap_;
-  std::vector<uint16_t> strokeIndexMap_;
+  std::vector<std::vector<uint16_t>> strokeIndexMap_;
   std::vector<StrokeEffect> strokeRegistry_;
 
   // Next free index in strokeRegistry_.
