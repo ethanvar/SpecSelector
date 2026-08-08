@@ -1,4 +1,5 @@
 #include "Mediator.h"
+#include "../events/EventBus.h"
 #include "StftDisplay.h"
 #include "juce_graphics/juce_graphics.h"
 #include "juce_gui_basics/juce_gui_basics.h"
@@ -69,6 +70,8 @@ void Mediator::mouseUp(const juce::MouseEvent &event) {
     processorRef.stft.addStrokeToSpectrogram(stroke, currentStrokePoints,
                                              m_stftDisplay.spectrogram);
     actionManager.AddMemento(std::move(action));
+    EventBus::getInstance().publish(
+        StrokeIndexChangedEvent{actionManager.currentIndex});
     currentStrokePoints.clear();
   }
 }
@@ -93,6 +96,8 @@ void Mediator::undoLastStroke() {
           actionManager.getAction(actionManager.currentIndex);
       m_stftDisplay.spectrogram = lastAction.returnActionImage().createCopy();
     }
+    EventBus::getInstance().publish(
+        StrokeIndexChangedEvent{actionManager.currentIndex});
     m_stftDisplay.repaint();
   }
 }
@@ -103,6 +108,8 @@ void Mediator::redoLastStroke() {
     DrawStrokeAction redoAction =
         actionManager.getAction(actionManager.currentIndex + 1);
     m_stftDisplay.spectrogram = redoAction.returnActionImage().createCopy();
+    EventBus::getInstance().publish(
+        StrokeIndexChangedEvent{actionManager.currentIndex});
     m_stftDisplay.repaint();
   }
 }

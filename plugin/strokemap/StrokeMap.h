@@ -59,7 +59,7 @@ public:
   uint8_t getStrokeType(int x, int y) const;
 
   // Returns the stroke registry index at (x, y). 0 means no stroke.
-  std::vector<uint16_t> getStrokeIndex(int x, int y) const;
+  std::vector<uint16_t> getStrokeIndices(int x, int y) const;
 
   // Returns a pointer to the registry entry for the stroke at (x, y).
   // Returns nullptr if no stroke is painted at that position.

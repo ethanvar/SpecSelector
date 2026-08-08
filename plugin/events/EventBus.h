@@ -25,6 +25,12 @@ struct ClickEvent : public Event {
   double frequencyHz;
 };
 
+// Event: For when the current undo/redo index changes in DrawActionTracker
+struct StrokeIndexChangedEvent : public Event {
+  StrokeIndexChangedEvent(int index) : currentIndex(index) {}
+  int currentIndex;
+};
+
 class EventBus {
 public:
   // Singleton access

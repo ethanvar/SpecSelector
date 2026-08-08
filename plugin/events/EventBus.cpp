@@ -45,3 +45,5 @@ template void EventBus::subscribe<ParameterChangedEvent>(
     std::function<void(const ParameterChangedEvent &)>);
 template void
     EventBus::subscribe<ClickEvent>(std::function<void(const ClickEvent &)>);
+template void EventBus::subscribe<StrokeIndexChangedEvent>(
+    std::function<void(const StrokeIndexChangedEvent &)>);

@@ -4,7 +4,12 @@ StftBuffers::StftBuffers(const juce::dsp::WindowingFunction<float> &w,
                          const juce::dsp::FFT &f, DialInputs &inputs,
                          StrokeMap *map, int &segsPassed)
     : window(w), forwardFFT(f), inputsRef(inputs), strokeMap(map),
-      segmentsPassed(segsPassed) {}
+      segmentsPassed(segsPassed) {
+  EventBus::getInstance().subscribe<StrokeIndexChangedEvent>(
+      [this](const StrokeIndexChangedEvent &event) {
+        currentIndex.store(event.currentIndex);
+      });
+}
 
 StftBuffers::~StftBuffers() {}
 
@@ -88,8 +93,14 @@ void StftBuffers::processSpectrum(float *data, int numBins) {
     float magnitude = std::abs(cdata[i]);
     float phase = std::arg(cdata[i]);
 
-    if (strokeMap->getStrokeIndex(xCoordinate, yCoordinate).size() != 0) {
-      magnitude *= (float(0.01) * inputsRef.magnitude);
+    // std::vector<uint16_t> indices = {};
+    if (strokeMap->getStrokeIndices(xCoordinate, yCoordinate).size() > 0) {
+      auto indices = strokeMap->getStrokeIndices(xCoordinate, yCoordinate);
+      if (indices.size() != 0) {
+        //    if (currentIndex > 0 && indices.back() < currentIndex) {
+        magnitude *= (float(0.01) * inputsRef.magnitude);
+        //  }
+      }
     } else {
       magnitude *= float(0);
     }
@@ -100,7 +111,8 @@ void StftBuffers::processSpectrum(float *data, int numBins) {
   }
 }
 
-void StftBuffers::setImageHeight(const int &height) {
+void StftBuffers::getCurrentIndex() {
+  std::cout << "Current Index" << currentIndex << std::endl;
   // imageHeight = std::make_unique<int>(height);
   // std::cout << "Set image height: " << *imageHeight << std::endl;
 }

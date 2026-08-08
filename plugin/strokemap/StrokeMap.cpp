@@ -25,7 +25,7 @@ void StrokeMap::growHeight(int newHeight) {
   strokeIndexMap_.resize(width_ * newHeight);
 
   // Preserve existing rows.
-  for (int y = 0; y < oldHeight; ++y) {
+  for (int y = 1; y < oldHeight; ++y) {
     std::memcpy(typeMap_.data() + y * width_, oldData.data() + y * width_,
                 width_ * sizeof(uint8_t));
     std::memcpy(strokeIndexMap_.data() + y * width_,
@@ -100,7 +100,7 @@ uint8_t StrokeMap::getStrokeType(int x, int y) const {
   return typeMap_[y * width_ + x];
 }
 
-std::vector<uint16_t> StrokeMap::getStrokeIndex(int x, int y) const {
+std::vector<uint16_t> StrokeMap::getStrokeIndices(int x, int y) const {
   if (x < 0 || x >= width_ || y < 0 || y >= height_) {
     return {};
   }
@@ -109,7 +109,7 @@ std::vector<uint16_t> StrokeMap::getStrokeIndex(int x, int y) const {
 
 const std::vector<const StrokeEffect *>
 StrokeMap::getStrokeEffect(int x, int y) const {
-  std::vector<uint16_t> indices = getStrokeIndex(x, y);
+  std::vector<uint16_t> indices = getStrokeIndices(x, y);
   if (0 >= static_cast<int>(indices.size()) ||
       indices.back() <= static_cast<int>(strokeRegistry_.size())) {
     return {};

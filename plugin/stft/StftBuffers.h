@@ -1,7 +1,9 @@
 #pragma once
+#include "../events/EventBus.h"
 #include "../interactable/DialInputs.h"
 #include "../strokemap/StrokeMap.h"
 #include <array>
+#include <atomic>
 #include <juce_dsp/juce_dsp.h>
 
 class StftBuffers {
@@ -23,6 +25,7 @@ private:
   DialInputs &inputsRef;
   const StrokeMap *strokeMap = nullptr;
   int &segmentsPassed;
+  std::atomic<int> currentIndex{0};
   // std::unique_ptr<int> imageHeight;
 
 public:
@@ -34,5 +37,5 @@ public:
   float processSample(float sample, bool bypassed);
   void processSpectrum(float *data, int numBins);
   void processFrame(bool bypassed);
-  void setImageHeight(const int &height);
+  void getCurrentIndex();
 };
