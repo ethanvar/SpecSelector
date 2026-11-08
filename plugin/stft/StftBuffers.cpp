@@ -5,13 +5,18 @@ StftBuffers::StftBuffers(const juce::dsp::WindowingFunction<float> &w,
                          StrokeMap *map, int &segsPassed)
     : window(w), forwardFFT(f), inputsRef(inputs), strokeMap(map),
       segmentsPassed(segsPassed) {
-  EventBus::getInstance().subscribe<StrokeIndexChangedEvent>(
-      [this](const StrokeIndexChangedEvent &event) {
-        currentIndex.store(event.currentIndex);
-      });
+  eventSubscription =
+      EventBus::getInstance().subscribe<StrokeIndexChangedEvent>(
+          [this](const StrokeIndexChangedEvent &event) {
+            currentIndex.store(event.currentIndex);
+          });
 }
 
-StftBuffers::~StftBuffers() {}
+StftBuffers::~StftBuffers() {
+  if (eventSubscription != 0) {
+    EventBus::getInstance().unsubscribe(eventSubscription);
+  }
+}
 
 void StftBuffers::reset() {
   count = 0;
@@ -93,14 +98,16 @@ void StftBuffers::processSpectrum(float *data, int numBins) {
     float magnitude = std::abs(cdata[i]);
     float phase = std::arg(cdata[i]);
 
-    // std::vector<uint16_t> indices = {};
-    if (strokeMap->getStrokeIndices(xCoordinate, yCoordinate).size() > 0) {
-      auto indices = strokeMap->getStrokeIndices(xCoordinate, yCoordinate);
-      if (indices.size() != 0) {
-        //    if (currentIndex > 0 && indices.back() < currentIndex) {
-        magnitude *= (float(0.01) * inputsRef.magnitude);
-        //  }
+    auto indices = strokeMap->getStrokeIndices(xCoordinate, yCoordinate);
+    bool painted = false;
+    for (uint16_t idx : indices) {
+      if (static_cast<int>(idx) <= currentIndex) {
+        painted = true;
+        break;
       }
+    }
+    if (painted) {
+      magnitude *= (float(0.01) * inputsRef.magnitude);
     } else {
       magnitude *= float(0);
     }
@@ -109,10 +116,4 @@ void StftBuffers::processSpectrum(float *data, int numBins) {
     phase *= inputsRef.phase;
     cdata[i] = std::polar(magnitude, phase);
   }
-}
-
-void StftBuffers::getCurrentIndex() {
-  std::cout << "Current Index" << currentIndex << std::endl;
-  // imageHeight = std::make_unique<int>(height);
-  // std::cout << "Set image height: " << *imageHeight << std::endl;
 }

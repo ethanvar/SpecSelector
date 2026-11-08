@@ -26,6 +26,7 @@ private:
   const StrokeMap *strokeMap = nullptr;
   int &segmentsPassed;
   std::atomic<int> currentIndex{0};
+  EventBus::SubscriptionHandle eventSubscription = 0;
   // std::unique_ptr<int> imageHeight;
 
 public:
@@ -37,5 +38,4 @@ public:
   float processSample(float sample, bool bypassed);
   void processSpectrum(float *data, int numBins);
   void processFrame(bool bypassed);
-  void getCurrentIndex();
 };

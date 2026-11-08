@@ -67,11 +67,12 @@ void Mediator::mouseUp(const juce::MouseEvent &event) {
     auto action = std::make_unique<DrawStrokeAction>(m_stftDisplay.spectrogram,
                                                      stroke, drawFn);
 
-    processorRef.stft.addStrokeToSpectrogram(stroke, currentStrokePoints,
-                                             m_stftDisplay.spectrogram);
     actionManager.AddMemento(std::move(action));
-    EventBus::getInstance().publish(
-        StrokeIndexChangedEvent{actionManager.currentIndex});
+    const int newIndex = actionManager.currentIndex;
+    processorRef.stft.addStrokeToSpectrogram(stroke, currentStrokePoints,
+                                             m_stftDisplay.spectrogram, newIndex);
+    std::cout << "Mediator.cpp currentIndex: " << newIndex << std::endl;
+    EventBus::getInstance().publish(StrokeIndexChangedEvent{newIndex});
     currentStrokePoints.clear();
   }
 }
@@ -79,7 +80,11 @@ void Mediator::mouseUp(const juce::MouseEvent &event) {
 bool Mediator::keyPressed(const juce::KeyPress &key,
                           juce::Component *originatingComponent) {
   if (key.getModifiers().isCommandDown() && key.getKeyCode() == 'z') {
-    undoLastStroke();
+    if (key.getModifiers().isShiftDown()) {
+      redoLastStroke();
+    } else {
+      undoLastStroke();
+    }
     return true;
   }
   return false;
@@ -96,6 +101,8 @@ void Mediator::undoLastStroke() {
           actionManager.getAction(actionManager.currentIndex);
       m_stftDisplay.spectrogram = lastAction.returnActionImage().createCopy();
     }
+    std::cout << "Mediator.cpp currentIndex: " << actionManager.currentIndex
+              << std::endl;
     EventBus::getInstance().publish(
         StrokeIndexChangedEvent{actionManager.currentIndex});
     m_stftDisplay.repaint();
@@ -104,10 +111,13 @@ void Mediator::undoLastStroke() {
 
 void Mediator::redoLastStroke() {
   if (actionManager.getMementosSize() > 0 &&
-      (actionManager.currentIndex + 1 <= actionManager.getMementosSize())) {
-    DrawStrokeAction redoAction =
+      (actionManager.currentIndex + 1 < actionManager.getMementosSize())) {
+    const auto &redoAction =
         actionManager.getAction(actionManager.currentIndex + 1);
     m_stftDisplay.spectrogram = redoAction.returnActionImage().createCopy();
+    actionManager.currentIndex += 1;
+    std::cout << "Mediator.cpp currentIndex: " << actionManager.currentIndex
+              << std::endl;
     EventBus::getInstance().publish(
         StrokeIndexChangedEvent{actionManager.currentIndex});
     m_stftDisplay.repaint();

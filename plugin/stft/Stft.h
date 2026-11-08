@@ -52,7 +52,7 @@ public:
   void invertFttSegments();
   void addStrokeToSpectrogram(const DrawingStroke &stroke,
                               const std::vector<StrokeCoordinate> &coords,
-                              juce::Image &spectrogram);
+                              juce::Image &spectrogram, int actionIndex);
   void addStrokeToStrokemap(uint8_t effectType,
                             const std::vector<StrokeInfo> &points);
   void initStrokemap(int width, juce::Image &spectrogram,
