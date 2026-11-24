@@ -1,9 +1,12 @@
 #pragma once
 
+#include <cstdint>
 #include <functional>
 #include <juce_core/juce_core.h>
 #include <map>
 #include <mutex>
+#include <typeindex>
+#include <utility>
 #include <vector>
 
 // Base class for all events
@@ -33,12 +36,38 @@ struct StrokeIndexChangedEvent : public Event {
 
 class EventBus {
 public:
+  // Opaque handle returned by subscribe(); pass it to unsubscribe() to remove
+  // the callback (e.g. from a destructor) and avoid dangling-subscription
+  // crashes on this singleton.
+  using SubscriptionHandle = std::uint64_t;
+
   // Singleton access
   static EventBus &getInstance();
 
-  // Subscription mechanism
+  // Subscription mechanism. Returns a handle used to unsubscribe.
   template <typename EventType>
-  void subscribe(std::function<void(const EventType &)> callback);
+  SubscriptionHandle subscribe(std::function<void(const EventType &)> callback) {
+    std::lock_guard<std::mutex> lock(mutex);
+
+    SubscriptionHandle handle = nextHandle++;
+
+    // Wrap the specific callback into a generic one that accepts const Event&
+    std::function<void(const Event &)> genericCallback =
+        [callback](const Event &event) {
+          // Cast the base Event& back to the expected derived type
+          const EventType &specificEvent = static_cast<const EventType &>(event);
+          callback(specificEvent);
+        };
+
+    // Use typeid() to get the type_info for the key
+    subscribers[std::type_index(typeid(EventType))].push_back(
+        {handle, std::move(genericCallback)});
+
+    return handle;
+  }
+
+  // Removes a previously registered subscription.
+  void unsubscribe(SubscriptionHandle handle);
 
   // Publishing mechanism
   void publish(const Event &event);
@@ -49,8 +78,12 @@ private:
   EventBus(const EventBus &) = delete;
   EventBus &operator=(const EventBus &) = delete;
 
+  SubscriptionHandle nextHandle = 1;
+
   // Storage for callbacks, keyed by event type ID (or type_info)
-  std::map<std::type_index, std::vector<std::function<void(const Event &)>>>
+  std::map<
+      std::type_index,
+      std::vector<std::pair<SubscriptionHandle, std::function<void(const Event &)>>>>
       subscribers;
   std::mutex mutex;
 };

@@ -1,12 +1,12 @@
 #include "StrokeMap.h"
 
 void StrokeMap::init(int width, int initialHeight) {
+  std::lock_guard<std::mutex> lock(mutex_);
   width_ = width;
   height_ = initialHeight;
   typeMap_.resize(width_ * height_, 0);
   strokeIndexMap_.resize(width_ * height_);
   strokeRegistry_.clear();
-  nextRegistryIndex_ = 1;
 }
 
 // inline void StrokeMap::expandTo(int newHeight) {
@@ -17,6 +17,7 @@ void StrokeMap::init(int width, int initialHeight) {
 // }
 
 void StrokeMap::growHeight(int newHeight) {
+  std::lock_guard<std::mutex> lock(mutex_);
   auto oldData = std::move(typeMap_);
   auto oldIndex = std::move(strokeIndexMap_);
   int oldHeight = height_;
@@ -35,8 +36,10 @@ void StrokeMap::growHeight(int newHeight) {
 }
 
 void StrokeMap::addStroke(uint8_t effectType,
-                          const std::vector<StrokeInfo> &points) {
-  if (width_ == 0) {
+                          const std::vector<StrokeInfo> &points,
+                          uint16_t strokeIdx) {
+  std::lock_guard<std::mutex> lock(mutex_);
+  if (width_ == 0 || height_ == 0) {
     return;
   }
 
@@ -45,10 +48,6 @@ void StrokeMap::addStroke(uint8_t effectType,
 
   // Average the params over all points in the stroke.
   // (Could also use max, min, or store per-point — this is a simple heuristic.)
-  float magSum = 0, phaseSum = 0, thickSum = 0;
-  int radiusSum = 0;
-  int pointCount = static_cast<int>(points.size());
-
   for (const auto &p : points) {
     // Derive magnitude/phase from the colour (or store them directly
     // on StrokeInfo if you prefer). For now, we use the colour as
@@ -58,34 +57,30 @@ void StrokeMap::addStroke(uint8_t effectType,
     effect.phase = static_cast<float>((rgb >> 8) & 0xFF) / 255.0f;
     effect.radius = p.radius;
     effect.thickness = 1.0f; // or derive from pointCount
-    thickSum += effect.thickness;
   }
 
-  auto idx = nextRegistryIndex_++;
-
-  if (idx < strokeRegistry_.size()) {
-    strokeRegistry_[idx] = effect;
-  } else {
-    strokeRegistry_.push_back(effect);
+  if (strokeIdx >= strokeRegistry_.size()) {
+    strokeRegistry_.resize(strokeIdx + 1);
   }
+  strokeRegistry_[strokeIdx] = effect;
 
   // Paint the stroke onto the map.
   for (const auto &p : points) {
-    if (p.x < 0 || p.x >= width_) {
-      continue; // skip out-of-bounds points
-    }
-
     for (int i = 0; i < p.radius; ++i) {
-      int r1idx2d = width_ * (p.y + i) + (p.x + i);
-      if (r1idx2d < strokeIndexMap_.size() && r1idx2d >= 0) {
-        typeMap_[r1idx2d] = effectType;
-        strokeIndexMap_[r1idx2d].push_back(static_cast<uint16_t>(idx));
+      int x1 = p.x + i;
+      int y1 = p.y + i;
+      if (x1 >= 0 && x1 < width_ && y1 >= 0 && y1 < height_) {
+        int idx2d = y1 * width_ + x1;
+        typeMap_[idx2d] = effectType;
+        strokeIndexMap_[idx2d].push_back(strokeIdx);
       }
 
-      int r2idx2d = width_ * (p.y - i) + (p.x - i);
-      if (r2idx2d < strokeIndexMap_.size() && r2idx2d >= 0) {
-        typeMap_[r2idx2d] = effectType;
-        strokeIndexMap_[r2idx2d].push_back(static_cast<uint16_t>(idx));
+      int x2 = p.x - i;
+      int y2 = p.y - i;
+      if (x2 >= 0 && x2 < width_ && y2 >= 0 && y2 < height_) {
+        int idx2d = y2 * width_ + x2;
+        typeMap_[idx2d] = effectType;
+        strokeIndexMap_[idx2d].push_back(strokeIdx);
       }
     }
   }
@@ -94,6 +89,7 @@ void StrokeMap::addStroke(uint8_t effectType,
 void removeStroke(uint8_t effectType, const std::vector<StrokeInfo> &points) {}
 
 uint8_t StrokeMap::getStrokeType(int x, int y) const {
+  std::lock_guard<std::mutex> lock(mutex_);
   if (x < 0 || x >= width_ || y < 0 || y >= height_) {
     return 0;
   }
@@ -101,6 +97,7 @@ uint8_t StrokeMap::getStrokeType(int x, int y) const {
 }
 
 std::vector<uint16_t> StrokeMap::getStrokeIndices(int x, int y) const {
+  std::lock_guard<std::mutex> lock(mutex_);
   if (x < 0 || x >= width_ || y < 0 || y >= height_) {
     return {};
   }
@@ -109,11 +106,11 @@ std::vector<uint16_t> StrokeMap::getStrokeIndices(int x, int y) const {
 
 const std::vector<const StrokeEffect *>
 StrokeMap::getStrokeEffect(int x, int y) const {
-  std::vector<uint16_t> indices = getStrokeIndices(x, y);
-  if (0 >= static_cast<int>(indices.size()) ||
-      indices.back() <= static_cast<int>(strokeRegistry_.size())) {
+  std::lock_guard<std::mutex> lock(mutex_);
+  if (x < 0 || x >= width_ || y < 0 || y >= height_) {
     return {};
   }
+  const auto &indices = strokeIndexMap_[y * width_ + x];
 
   std::vector<const StrokeEffect *> results;
   results.reserve(indices.size());
@@ -130,6 +127,7 @@ StrokeMap::getStrokeEffect(int x, int y) const {
 std::vector<StrokeMap::PixelEntries>
 StrokeMap::getEntriesForRow(int timeRow) const {
   std::vector<PixelEntries> result;
+  std::lock_guard<std::mutex> lock(mutex_);
   if (timeRow < 0 || timeRow >= height_ || width_ == 0) {
     return result;
   }
@@ -147,10 +145,10 @@ StrokeMap::getEntriesForRow(int timeRow) const {
 }
 
 void StrokeMap::clear() {
+  std::lock_guard<std::mutex> lock(mutex_);
   width_ = 0;
   height_ = 0;
   typeMap_.clear();
   strokeIndexMap_.clear();
   strokeRegistry_.clear();
-  nextRegistryIndex_ = 1;
 }

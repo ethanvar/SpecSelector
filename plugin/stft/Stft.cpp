@@ -148,7 +148,7 @@ void Stft::drawSpectorgramWithStft(juce::Image &specImage) {
 
       // Map to FFT index
       int fftIndex = juce::jlimit(
-          0, m_fftSize / 2,
+          0, (m_fftSize / 2) - 1,
           static_cast<int>(skewedProportionY * (float(m_fftSize) / 2)));
 
       // Get the dB value for this frequency bin
@@ -235,9 +235,10 @@ void Stft::updateSegmentsPassedInTrack(double samplesPassedInTrack,
 
 void Stft::addStrokeToSpectrogram(const DrawingStroke &stroke,
                                   const std::vector<StrokeCoordinate> &coords,
-                                  juce::Image &spectrogram) {
+                                  juce::Image &spectrogram, int actionIndex) {
   DrawingStroke newStroke = stroke;
-  strokeMap.addStroke(1, newStroke.strokeInfo);
+  strokeMap.addStroke(1, newStroke.strokeInfo,
+                      static_cast<uint16_t>(actionIndex));
 }
 
 void Stft::initStrokemap(int width, juce::Image &spectrogram,

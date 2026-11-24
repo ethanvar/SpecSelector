@@ -29,14 +29,13 @@ public:
 
   const DrawStrokeAction &getAction(int index) {
     if (index >= 0 && index < mementos.size()) {
-      currentIndex = index;
       std::cout << "Getting memento: " << index << std::endl;
-      for (int i = 0; i < mementos.size() - 1; ++i) {
-        if (currentIndex == i) {
+      for (int i = 0; i < mementos.size(); ++i) {
+        if (index == i) {
           std::cout << "------------------------------" << std::endl;
         }
         std::cout << "Memento " << i << ":" << &mementos[i] << std::endl;
-        if (currentIndex == i) {
+        if (index == i) {
           std::cout << "------------------------------" << std::endl;
         }
       }

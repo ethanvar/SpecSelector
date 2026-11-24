@@ -2,6 +2,7 @@
 
 #include "../interactable/DrawStrokeAction.h"
 #include <cstdint>
+#include <mutex>
 #include <vector>
 
 // Represents the effect parameters associated with a single stroke
@@ -45,10 +46,13 @@ public:
   // - effectType: a user-defined category (e.g. 1 = delay, 2 = reverb, 3 =
   // filter)
   // - points: the StrokeInfo points from a DrawingStroke
-  // - timeRow: the y-coordinate in the spectrogram (usually segmentsPassed)
+  // - strokeIdx: the undo/redo action index of this stroke (from
+  // DrawActionTracker). Stored per-pixel so processSpectrum can gate on it
+  // against the current undo/redo head.
   // If a pixel is already occupied, the new stroke overwrites it
   // (latest-wins semantics).
-  void addStroke(uint8_t effectType, const std::vector<StrokeInfo> &points);
+  void addStroke(uint8_t effectType, const std::vector<StrokeInfo> &points,
+                 uint16_t strokeIdx);
   void removeStroke(uint8_t effectType, const std::vector<StrokeInfo> &points);
 
   // ------------------------------------------------------------------
@@ -58,7 +62,7 @@ public:
   // Returns the stroke type at (x, y). 0 means no stroke painted.
   uint8_t getStrokeType(int x, int y) const;
 
-  // Returns the stroke registry index at (x, y). 0 means no stroke.
+  // Returns the stroke registry index at (x, y). Empty means no stroke.
   std::vector<uint16_t> getStrokeIndices(int x, int y) const;
 
   // Returns a pointer to the registry entry for the stroke at (x, y).
@@ -82,8 +86,14 @@ public:
   // height is the new desired number of frames.
   // void expandTo(int newHeight);
 
-  int getWidth() const { return width_; }
-  int getHeight() const { return height_; }
+  int getWidth() const {
+    std::lock_guard<std::mutex> lock(mutex_);
+    return width_;
+  }
+  int getHeight() const {
+    std::lock_guard<std::mutex> lock(mutex_);
+    return height_;
+  }
 
   // ------------------------------------------------------------------
   // Utility
@@ -92,6 +102,8 @@ public:
   void clear();
 
 private:
+  mutable std::mutex mutex_;
+
   int width_ = 0;
   int height_ = 0;
 
@@ -99,9 +111,6 @@ private:
   std::vector<uint8_t> typeMap_;
   std::vector<std::vector<uint16_t>> strokeIndexMap_;
   std::vector<StrokeEffect> strokeRegistry_;
-
-  // Next free index in strokeRegistry_.
-  uint16_t nextRegistryIndex_ = 1; // 0 = "no entry"
 
   void growHeight(int newHeight);
 };
