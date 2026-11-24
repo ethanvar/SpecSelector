@@ -213,7 +213,7 @@ void publish(const Event &event);
 Event types defined in `EventBus.h`:
 
 | Event | Fields | Status |
-|---|---|---|
+| --- | --- | --- |
 | `StrokeIndexChangedEvent` | `int currentIndex` | **Used** — published by `Mediator` on draw/undo/redo; consumed by `StftBuffers` |
 | `ParameterChangedEvent` | `juce::String parameterID`, `float newValue` | Defined, not used |
 | `ClickEvent` | `double timeSeconds`, `double frequencyHz` | Defined, not used |
@@ -221,7 +221,7 @@ Event types defined in `EventBus.h`:
 ## Processing Constants
 
 | Constant | Value | Meaning |
-|---|---|---|
+| --- | --- | --- |
 | `fftOrder` | 9 | FFT order |
 | `fftSize` | 512 (`1 << 9`) | FFT block size / reported plugin latency |
 | `numBins` | 257 (`fftSize / 2 + 1`) | Bins analysed in `processSpectrum` |
@@ -274,7 +274,7 @@ Event types defined in `EventBus.h`:
 ## Thread Model
 
 | Thread | Work |
-|---|---|
+| --- | --- |
 | **Audio thread** | `processBlock()` -> `StftBuffers::processSample()` / `processFrame()` / `processSpectrum()`. Reads `StrokeMap` and `DialInputs`. |
 | **Message/UI thread** | Editor timer, slider/button callbacks, `Mediator` mouse handlers, `paint()`. Writes `StrokeMap` and `DialInputs`. |
 
@@ -345,7 +345,7 @@ cmake --build build -j"$(nproc)"
 This builds both formats declared in `CMakeLists.txt`:
 
 | Format | Output |
-|---|---|
+| --- | --- |
 | VST3 | `build/SpecSelector_artefacts/<Config>/VST3/Spec Selector.vst3` |
 | Standalone | `build/SpecSelector_artefacts/<Config>/Standalone/Spec Selector` |
 
@@ -398,5 +398,5 @@ audio device when prompted.
 
 To provide a robust, modular framework for building advanced, visually
 interactive audio effects plugins that can analyze and modify audio based on
-spectral data. File export of the processed audio is planned but not yet
+spectral data. File export of the processed audio, is planned but not yet
 implemented.
